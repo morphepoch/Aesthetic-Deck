@@ -1,0 +1,66 @@
+{
+  "name": "aesthetic-deck",
+  "styleCount": 12,
+  "styles": [
+    {
+      "id": "neon-drift",
+      "file": "assets/themes/neon-drift.css",
+      "source": "html-ppt0520 2"
+    },
+    {
+      "id": "pitch-deck-vc",
+      "file": "assets/themes/pitch-deck-vc.css",
+      "source": "html-ppt0520 2"
+    },
+    {
+      "id": "dimensional-layering",
+      "file": "assets/themes/dimensional-layering.css",
+      "source": "html-ppt0520 2"
+    },
+    {
+      "id": "art-deco",
+      "file": "assets/themes/art-deco.css",
+      "source": "html-ppt0520 2"
+    },
+    {
+      "id": "holographic-fluid",
+      "file": "assets/themes/holographic-fluid.css",
+      "source": "html-ppt0520 2"
+    },
+    {
+      "id": "arctic",
+      "file": "assets/themes/arctic.css",
+      "source": "html-ppt0520 2 / renamed from arctic-cool"
+    },
+    {
+      "id": "engineering-whiteprint",
+      "file": "assets/themes/engineering-whiteprint.css",
+      "source": "html-ppt0520 2"
+    },
+    {
+      "id": "aurora",
+      "file": "assets/themes/aurora.css",
+      "source": "html-ppt0520 2"
+    },
+    {
+      "id": "glassmorphism",
+      "file": "assets/themes/glassmorphism.css",
+      "source": "html-ppt0520 2"
+    },
+    {
+      "id": "indigo-porcelain",
+      "file": "assets/themes/indigo-porcelain.css",
+      "source": "Aesthetic Deck compatible theme, derived from current Indigo Porcelain showcase palette"
+    },
+    {
+      "id": "organic-blob",
+      "file": "assets/themes/organic-blob.css",
+      "source": "html-ppt0520 2"
+    },
+    {
+      "id": "grain-texture",
+      "file": "assets/themes/grain-texture.css",
+      "source": "html-ppt0520 2"
+    }
+  ]
+}

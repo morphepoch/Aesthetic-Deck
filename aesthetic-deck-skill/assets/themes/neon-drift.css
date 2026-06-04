@@ -1,0 +1,185 @@
+/* theme: neon-drift — dark night city aesthetic with neon accents */
+/* Constraints from prompt:
+ * - No gradient text (neutralize .gradient-text)
+ * - No glow effects outside CTA (only CTA hover glows)
+ * - Exactly two neon accent colors (mint + coral)
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&family=IBM+Plex+Sans:wght@400;600&display=swap');
+
+:root{
+  --bg:#05070f;
+  --bg-soft:#05070f;
+
+  /* Map prompt panel/card into html-ppt surfaces */
+  --surface:rgba(9,17,32,.88);
+  --surface-2:rgba(6,12,24,.68);
+
+  --border:#1e2c44;
+  --border-strong:rgba(229,244,255,.2);
+
+  --text-1:#e5f4ff;
+  --text-2:rgba(229,244,255,.78);
+  --text-3:rgba(229,244,255,.58);
+
+  /* Accents (no other accent colors) */
+  --accent:#2ef2d5;
+  --accent-2:#ff745f;
+  --accent-3:#2ef2d5;
+
+  --good:var(--accent);
+  --warn:var(--accent-2);
+  --bad:var(--accent-2);
+
+  /* Make grad effectively solid to avoid gradient-text usage */
+  --grad:linear-gradient(135deg,var(--accent),var(--accent));
+  --grad-soft:linear-gradient(135deg,rgba(46,242,213,.12),rgba(46,242,213,.12));
+
+  --radius:16px;
+  --radius-sm:12px;
+  --radius-lg:26px;
+
+  /* Prevent non-CTA glow by default */
+  --shadow:none;
+  --shadow-lg:0 24px 65px rgba(0,0,0,.45);
+
+  --font-sans:'IBM Plex Sans','Inter','Noto Sans SC',-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+  --font-display:'Rajdhani','Inter','Noto Sans SC',sans-serif;
+  --letter-tight:-.03em;
+
+  /* Extra prompt tokens (usable by content/layout CSS if desired) */
+  --panel:rgba(6,12,24,.68);
+  --prompt-bg:rgba(8,11,20,.9);
+  --prompt-border:rgba(229,244,255,.2);
+
+  /* If you must obey "no glow outside CTA", set this to none */
+  --heading-glow:0 0 28px rgba(46,242,213,.48);
+}
+
+html,body{overflow-x:hidden}
+
+/* base.css paints .deck with var(--bg), which hides body gradients.
+ * Override here so the neon bleed background is visible in decks and previews. */
+.deck{
+  background:
+    radial-gradient(60% 60% at 18% 22%, rgba(65,141,255,.35), transparent 60%),
+    radial-gradient(55% 55% at 78% 8%, rgba(46,242,213,.28), transparent 60%),
+    radial-gradient(60% 60% at 56% 86%, rgba(255,116,95,.24), transparent 60%),
+    #05070f;
+}
+
+body{
+  background:
+    radial-gradient(60% 60% at 18% 22%, rgba(65,141,255,.35), transparent 60%),
+    radial-gradient(55% 55% at 78% 8%, rgba(46,242,213,.28), transparent 60%),
+    radial-gradient(60% 60% at 56% 86%, rgba(255,116,95,.24), transparent 60%),
+    #05070f;
+  color:var(--text-1);
+  font-family:var(--font-sans);
+  font-weight:400;
+  font-size:1.07rem;
+  line-height:1.75;
+}
+
+/* Respect forbidden: no gradient text */
+.gradient-text{
+  background:none !important;
+  -webkit-text-fill-color:currentColor !important;
+  color:var(--text-1) !important;
+}
+
+/* Headings */
+h1.title,.h1,
+h2.title,.h2{
+  font-family:var(--font-display);
+  font-weight:700;
+  letter-spacing:var(--letter-tight);
+  text-transform:uppercase;
+  line-height:.95;
+  text-shadow:var(--heading-glow);
+}
+
+h1.title,.h1{font-size:clamp(2rem,6vw,5rem)}
+
+/* Cards */
+.card{
+  background:rgba(9,17,32,.88);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:14px;
+  box-shadow:none;
+}
+
+/* Hero panel helper (add class="card hero-panel") */
+.card.hero-panel{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:26px;
+  padding:clamp(22px,5vw,52px);
+  -webkit-backdrop-filter:blur(5px);
+  backdrop-filter:blur(5px);
+  box-shadow:
+    0 0 0 1px rgba(46,242,213,.3),
+    0 24px 65px rgba(0,0,0,.45);
+}
+
+/* Buttons */
+a.btn,button.btn,.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:8px 14px;
+  border-radius:999px;
+  background:transparent;
+  color:var(--accent);
+  border:1px solid var(--accent);
+  text-decoration:none;
+  transition:box-shadow 250ms ease, transform 250ms ease, background-color 250ms ease;
+}
+
+/* Glow only on CTA */
+a.btn.cta,button.btn.cta,.btn.cta,
+a.btn[data-cta="true"],button.btn[data-cta="true"],.btn[data-cta="true"]{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+a.btn.cta:hover,button.btn.cta:hover,.btn.cta:hover,
+a.btn[data-cta="true"]:hover,button.btn[data-cta="true"]:hover,.btn[data-cta="true"]:hover{
+  box-shadow:
+    0 0 0 1px rgba(46,242,213,.35),
+    0 18px 50px rgba(0,0,0,.45);
+}
+
+/* Feature grid helper (add class="grid neon-features") */
+.grid.neon-features{
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;
+}
+
+/* Entrance motion: only when slide becomes active */
+@media (prefers-reduced-motion: no-preference){
+  .slide.is-active .grid.neon-features .card{
+    opacity:0;
+    transform:translateY(14px);
+    animation:neon-rise 700ms ease forwards;
+  }
+  .slide.is-active .grid.neon-features .card:nth-child(1){animation-delay:0ms}
+  .slide.is-active .grid.neon-features .card:nth-child(2){animation-delay:80ms}
+  .slide.is-active .grid.neon-features .card:nth-child(3){animation-delay:160ms}
+  .slide.is-active .grid.neon-features .card:nth-child(4){animation-delay:240ms}
+  .slide.is-active .grid.neon-features .card:nth-child(5){animation-delay:320ms}
+  .slide.is-active .grid.neon-features .card:nth-child(6){animation-delay:400ms}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .slide.is-active .grid.neon-features .card{animation:none;opacity:1;transform:none}
+}
+
+@keyframes neon-rise{
+  to{opacity:1;transform:translateY(0)}
+}
+
+@media (max-width:768px){
+  .grid.neon-features{grid-template-columns:1fr}
+}

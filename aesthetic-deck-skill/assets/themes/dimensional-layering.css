@@ -1,0 +1,128 @@
+/* theme: dimensional-layering — 叠层空间感（tinted glass panes on dark ambient bg） */
+/* Style constraints:
+ * - Dark rich background (deep blue-purple gradient)
+ * - Semi-transparent layered panels + blur(20px)
+ * - Multi-layer shadows (3+ layers) to simulate z-depth
+ * - Soft glow edge highlights (subtle, not neon)
+ * - Avoid hard borders / opaque flats
+ */
+
+:root{
+  /* Background */
+  --bg:#1A1A2E;          /* Deep Blue BG */
+  --bg-soft:#0F3460;     /* Blue-purple */
+
+  /* Surfaces (tinted glass panes) */
+  --surface:rgba(255,255,255,.06);
+  --surface-2:rgba(255,255,255,.10);
+
+  /* Borders (soft, not harsh) */
+  --border:rgba(255,255,255,.10);
+  --border-strong:rgba(255,255,255,.16);
+
+  /* Text */
+  --text-1:#E0E4F0;                      /* Light Gray-White */
+  --text-2:rgba(224,228,240,.78);
+  --text-3:rgba(224,228,240,.56);
+
+  /* Accents */
+  --accent:#4FC3F7;      /* Light Blue */
+  --accent-2:#CE93D8;    /* Lavender */
+  --accent-3:#4FC3F7;
+
+  /* Status (kept within palette vibe) */
+  --good:#4FC3F7;
+  --warn:#CE93D8;
+  --bad:#CE93D8;
+
+  /* Gradients (ambient, not flashy) */
+  --grad:linear-gradient(135deg,#4FC3F7 0%, #CE93D8 100%);
+  --grad-soft:linear-gradient(135deg,rgba(79,195,247,.18),rgba(206,147,216,.18));
+
+  /* Geometry */
+  --radius:20px;
+  --radius-sm:14px;
+  --radius-lg:28px;
+
+  /* Depth: multi-layer shadows (3+ layers) */
+  --shadow:
+    0 20px 40px rgba(0,0,0,.30),
+    0 8px 16px rgba(0,0,0,.20),
+    inset 0 1px 0 rgba(255,255,255,.10);
+  --shadow-lg:
+    0 34px 80px rgba(0,0,0,.40),
+    0 16px 28px rgba(0,0,0,.24),
+    0 2px 0 rgba(79,195,247,.08),
+    inset 0 1px 0 rgba(255,255,255,.12);
+
+  /* Typography: keep default stack; display uses sans for clean tech look */
+  --font-sans:'Inter','Noto Sans SC',-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+  --font-display:var(--font-sans);
+}
+
+/* Ambient background with subtle depth */
+body{
+  background:
+    radial-gradient(60% 60% at 18% 20%, rgba(79,195,247,.18), transparent 62%),
+    radial-gradient(55% 55% at 80% 12%, rgba(206,147,216,.16), transparent 60%),
+    radial-gradient(60% 60% at 60% 88%, rgba(79,195,247,.10), transparent 60%),
+    linear-gradient(180deg,#1A1A2E 0%, #0F3460 100%);
+}
+
+/* base.css paints .deck with var(--bg), which hides body gradients. */
+.deck{
+  background:
+    radial-gradient(60% 60% at 18% 20%, rgba(79,195,247,.18), transparent 62%),
+    radial-gradient(55% 55% at 80% 12%, rgba(206,147,216,.16), transparent 60%),
+    radial-gradient(60% 60% at 60% 88%, rgba(79,195,247,.10), transparent 60%),
+    linear-gradient(180deg,#1A1A2E 0%, #0F3460 100%);
+}
+
+/* Panels: translucent + blur + layered shadow */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:20px;
+  box-shadow:var(--shadow);
+  -webkit-backdrop-filter:blur(20px);
+  backdrop-filter:blur(20px);
+}
+
+/* Soft edge highlight: looks like a pane catching light */
+.card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(120% 80% at 12% 8%, rgba(255,255,255,.10), transparent 58%),
+    radial-gradient(90% 70% at 92% 12%, rgba(79,195,247,.08), transparent 62%),
+    radial-gradient(90% 70% at 85% 90%, rgba(206,147,216,.07), transparent 66%);
+  opacity:.85;
+}
+
+/* Secondary surfaces */
+.card-soft{
+  background:var(--surface-2);
+}
+
+/* Accent divider: subtle glow, not a hard bar */
+.divider-accent{
+  height:3px;
+  width:96px;
+  background:var(--grad);
+  box-shadow:0 0 18px rgba(79,195,247,.18);
+}
+
+/* Pills: translucent chips */
+.pill{
+  background:rgba(255,255,255,.08);
+  border-color:rgba(255,255,255,.12);
+}
+
+/* Overview grid uses backdrop blur already; keep it consistent with theme */
+.overview{
+  background:rgba(10,12,18,.78);
+  -webkit-backdrop-filter:blur(18px);
+  backdrop-filter:blur(18px);
+}

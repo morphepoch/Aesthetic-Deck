@@ -48,8 +48,18 @@ Aesthetic-Deck/
   js/                     # voting, storage, Firebase, and UI logic
   styles/                 # page and results styling
   ppt-styles/             # curated PPT style templates
+  aesthetic-deck-skill/   # packaged skill with the 12 selected styles
   assets/                 # README screenshots and project assets
 ```
+
+## Aesthetic Deck Skill
+
+The 12 selected styles are also packaged as a reusable skill:
+
+- `aesthetic-deck-skill/`
+- `aesthetic-deck-skill/SKILL.md`
+
+The skill includes the selected theme CSS files, shared deck runtime assets, a starter deck template, and standalone examples for the current style set.
 
 ## Current PPT Styles
 

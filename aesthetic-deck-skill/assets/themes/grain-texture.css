@@ -1,0 +1,231 @@
+/* theme: grain-texture — analog film noise over earthy dark tones */
+/* Constraints:
+ * - No box-shadow (depth through color layering + opacity only)
+ * - No images/icons; texture only from SVG noise + gradients
+ * - Two accents only: terracotta + sage
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap');
+
+:root{
+  --bg:#1a1714;
+  --bg-soft:#1a1714;
+
+  --surface:rgba(38,34,28,.85); /* card bg */
+  --surface-2:rgba(38,34,28,.85);
+
+  --border:rgba(232,221,208,.12);
+  --border-strong:rgba(232,221,208,.18);
+
+  --text-1:#e8ddd0;
+  --text-2:#a09484;
+  --text-3:rgba(232,221,208,.50);
+
+  --accent:#e07a5f;     /* accent-1 */
+  --accent-2:#81b29a;   /* accent-2 */
+  --accent-3:#e07a5f;
+
+  --good:var(--accent-2);
+  --warn:var(--accent);
+  --bad:var(--accent);
+
+  --grad:linear-gradient(135deg,var(--accent),var(--accent));
+  --grad-soft:linear-gradient(135deg,rgba(224,122,95,.12),rgba(129,178,154,.10));
+
+  --radius:14px;        /* tiles */
+  --radius-sm:14px;
+  --radius-lg:24px;     /* hero */
+
+  /* No shadows */
+  --shadow:none;
+  --shadow-lg:none;
+
+  --font-sans:'DM Sans','Inter','Noto Sans SC',-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+  --font-display:'DM Serif Display','Noto Serif SC',Georgia,serif;
+  --letter-tight:-.02em;
+}
+
+html,body{overflow-x:hidden}
+
+body{
+  background:var(--bg);
+  color:var(--text-1);
+  font-family:var(--font-sans);
+  font-weight:400;
+  font-size:15px;
+  line-height:1.8;
+}
+
+/* base.css paints .deck with var(--bg); add ambient glows here */
+.deck{
+  background:
+    radial-gradient(circle at 20% 20%, rgba(224,122,95,.12), transparent 50%),
+    radial-gradient(circle at 75% 70%, rgba(129,178,154,.10), transparent 50%),
+    var(--bg);
+}
+
+/* Film grain overlay (SVG feTurbulence) */
+.deck::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  background-repeat:repeat;
+  background-size:256px 256px;
+  mix-blend-mode:overlay;
+}
+
+/* Keep deck content above grain */
+.slide{z-index:1}
+.deck-header,.deck-footer,.progress-bar{z-index:2}
+
+/* Typography */
+h1.title,.h1,
+h2.title,.h2{
+  font-family:var(--font-display);
+  letter-spacing:var(--letter-tight);
+  line-height:1.05;
+  font-weight:400;
+  color:var(--text-1);
+}
+h1.title,.h1{font-size:clamp(2.2rem,6vw,5rem)}
+h2.title,.h2{font-size:35px}
+
+.lede{color:var(--text-2)}
+.dim{color:var(--text-2)}
+.dim2{color:var(--text-3)}
+.mono{font-family:var(--font-mono)}
+
+/* Cards (no shadow) */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  box-shadow:none;
+}
+
+/* Hero panel helper (use class="card gt-hero") */
+.card.gt-hero{
+  border-radius:24px;
+  padding:clamp(24px,5vw,48px);
+  position:relative;
+  overflow:hidden;
+}
+
+/* Film frame treatment for hero (no box-shadow; all via borders + overlays) */
+.card.gt-hero::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  /* Inner vignette + subtle darkroom edges */
+  background:
+    radial-gradient(120% 90% at 50% 40%, rgba(0,0,0,0) 0 56%, rgba(0,0,0,.42) 100%),
+    linear-gradient(90deg, rgba(0,0,0,.32) 0 24px, rgba(0,0,0,0) 24px calc(100% - 24px), rgba(0,0,0,.32) calc(100% - 24px) 100%),
+    linear-gradient(0deg, rgba(0,0,0,.22), rgba(0,0,0,0) 22%, rgba(0,0,0,0) 78%, rgba(0,0,0,.22));
+  opacity:.95;
+  z-index:0;
+}
+
+.card.gt-hero::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  /* Sprocket-hole strips (visual suggestion; not cutouts) */
+  background:
+    repeating-linear-gradient(
+      180deg,
+      rgba(232,221,208,.10) 0 10px,
+      rgba(232,221,208,.03) 10px 22px
+    ) left 10px top 28px / 10px calc(100% - 56px) no-repeat,
+    repeating-linear-gradient(
+      180deg,
+      rgba(232,221,208,.10) 0 10px,
+      rgba(232,221,208,.03) 10px 22px
+    ) right 10px top 28px / 10px calc(100% - 56px) no-repeat;
+  opacity:.55;
+  z-index:0;
+}
+
+/* Ensure hero content stays above frame overlays */
+.card.gt-hero > *{position:relative;z-index:1}
+
+/* Accent italic emphasis in headings (like "Grain" in reference) */
+.h1 i,.h1 em,.h2 i,.h2 em{color:var(--accent);font-style:italic}
+
+/* Accent divider (60px) */
+.divider-accent{
+  height:2px;
+  width:60px;
+  background:rgba(224,122,95,.60);
+  border-radius:999px;
+}
+
+/* Tile dot indicators (6px) */
+.gt-tile{
+  position:relative;
+  padding:14px;
+  border-radius:14px;
+}
+.gt-tile::before{
+  content:"";
+  position:absolute;
+  left:14px;
+  top:16px;
+  width:6px;
+  height:6px;
+  border-radius:999px;
+  background:rgba(160,148,132,.70);
+}
+.gt-tile.dot-a::before{background:rgba(224,122,95,.70)}
+.gt-tile.dot-b::before{background:rgba(129,178,154,.70)}
+
+/* Make room for dot */
+.gt-tile > :first-child{margin-left:14px}
+
+/* Buttons (pill, transparent) */
+a.btn,button.btn,.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  min-height:44px;
+  padding:10px 16px;
+  border-radius:999px;
+  border:1px solid var(--accent);
+  background:transparent;
+  color:var(--text-1);
+  text-decoration:none;
+  transition:background-color .25s ease, border-color .25s ease, color .25s ease;
+}
+.btn:hover{background:rgba(224,122,95,.12)}
+
+/* Entrance motion helpers */
+.gt-rise{opacity:0;transform:translateY(12px);animation:gt-rise .65s ease forwards}
+.gt-stagger > *{opacity:0;transform:translateY(12px);animation:gt-rise .65s ease forwards}
+.gt-stagger > *:nth-child(1){animation-delay:0ms}
+.gt-stagger > *:nth-child(2){animation-delay:100ms}
+.gt-stagger > *:nth-child(3){animation-delay:200ms}
+.gt-stagger > *:nth-child(4){animation-delay:300ms}
+.gt-stagger > *:nth-child(5){animation-delay:400ms}
+.gt-stagger > *:nth-child(6){animation-delay:500ms}
+.gt-stagger > *:nth-child(7){animation-delay:600ms}
+.gt-stagger > *:nth-child(8){animation-delay:700ms}
+
+@keyframes gt-rise{to{opacity:1;transform:translateY(0)}}
+
+@media (max-width:768px){
+  .deck::before{opacity:.02}
+  .card.gt-hero{padding:24px}
+  h1.title,.h1{font-size:clamp(2.2rem,8vw,2.8rem)}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .deck::before{mix-blend-mode:normal}
+  .gt-rise,.gt-stagger > *{animation:none;opacity:1;transform:none}
+  a.btn,button.btn,.btn{transition:none}
+}

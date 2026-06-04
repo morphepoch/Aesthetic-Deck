@@ -1,0 +1,333 @@
+/* theme: organic-blob — flowing organic shapes with earthy tones */
+/* Notes:
+ * - No sharp corners: core components use 8-value blob border-radius
+ * - CSS-only motion: floating ambient blobs + blob morph samples
+ * - No neon/saturated colors: only uses provided earthy tokens (and color-mix of them)
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,700;9..144,800&display=swap');
+
+:root{
+  --bg:#faf5ef;
+  --bg-warm:#f5ebe0;
+
+  --text-1:#3d3229;
+  --text-2:#8a7e74;
+  --text-3:rgba(61,50,41,.50);
+
+  --sage:#87a878;
+  --sage-soft:#dce8d4;
+  --terracotta:#c4704b;
+  --terracotta-soft:#f5ddd0;
+  --sand:#d4a574;
+  --sand-soft:#f0e2d0;
+  --cream:#fdf8f0;
+
+  --border:rgba(61,50,41,.10);
+  --surface:rgba(253,248,240,.85); /* --card */
+  --surface-2:rgba(253,248,240,.92);
+
+  --accent:var(--terracotta);
+  --accent-2:var(--sage);
+  --accent-3:var(--sand);
+
+  --good:var(--sage);
+  --warn:var(--sand);
+  --bad:var(--terracotta);
+
+  --grad:linear-gradient(135deg,var(--terracotta),var(--sand));
+  --grad-soft:linear-gradient(135deg,rgba(196,112,75,.18),rgba(212,165,116,.18));
+
+  --radius:18px;
+  --radius-sm:16px;
+  --radius-lg:28px;
+
+  --shadow:0 20px 60px rgba(61,50,41,.06);
+  --shadow-lg:0 26px 80px rgba(61,50,41,.09);
+
+  --font-sans:'DM Sans','Inter','Noto Sans SC',-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+  --font-display:'Fraunces','Noto Serif SC',Georgia,serif;
+  --letter-tight:-.02em;
+}
+
+html,body{overflow-x:hidden}
+
+body{
+  background:var(--bg);
+  color:var(--text-1);
+  font-family:var(--font-sans);
+  font-weight:400;
+  line-height:1.7;
+}
+
+/* base.css uses full-screen slides with overflow:hidden which clips long content.
+ * Ensure text is never cut off while keeping layout rhythm close to base/layout. */
+.slide{
+  justify-content:center; /* keep the familiar centered layout */
+  overflow-x:hidden;
+  overflow-y:auto;
+  padding:72px 96px;
+  -webkit-overflow-scrolling:touch;
+}
+@media (max-width:768px){.slide{padding:44px 22px}}
+
+/* Layered warm base */
+.deck{
+  background:
+    radial-gradient(circle at 12% 18%, rgba(253,248,240,.85), transparent 36%),
+    radial-gradient(circle at 86% 14%, rgba(220,232,212,.55), transparent 34%),
+    radial-gradient(circle at 82% 78%, rgba(245,221,208,.55), transparent 38%),
+    linear-gradient(180deg,var(--bg-warm),var(--bg));
+}
+
+/* Floating ambient blobs (blurred, low opacity) */
+.deck::before{
+  content:"";
+  position:fixed;
+  inset:-18vh -18vw;
+  pointer-events:none;
+  z-index:0;
+  opacity:.12;
+  filter:blur(40px);
+  background:
+    radial-gradient(circle at 18% 28%, rgba(135,168,120,.85), transparent 46%),
+    radial-gradient(circle at 78% 18%, rgba(196,112,75,.78), transparent 44%),
+    radial-gradient(circle at 72% 78%, rgba(212,165,116,.75), transparent 46%),
+    radial-gradient(circle at 24% 82%, rgba(220,232,212,.90), transparent 44%);
+  animation:ob-float 22s ease-in-out infinite;
+}
+
+.deck::after{
+  content:"";
+  position:fixed;
+  inset:-18vh -18vw;
+  pointer-events:none;
+  z-index:0;
+  opacity:.10;
+  filter:blur(44px);
+  background:
+    radial-gradient(circle at 34% 22%, rgba(245,221,208,.85), transparent 48%),
+    radial-gradient(circle at 86% 58%, rgba(135,168,120,.70), transparent 50%),
+    radial-gradient(circle at 10% 60%, rgba(212,165,116,.70), transparent 52%);
+  animation:ob-float2 25s ease-in-out infinite;
+}
+
+/* Keep slide content above ambient */
+.slide{z-index:1}
+.deck-header,.deck-footer,.progress-bar{z-index:2}
+
+/* Typography */
+h1.title,.h1,
+h2.title,.h2{
+  font-family:var(--font-display);
+  letter-spacing:var(--letter-tight);
+  line-height:1.2;
+  color:var(--text-1);
+}
+h1.title,.h1{font-weight:800;font-size:clamp(2.2rem,5.5vw,4rem)}
+/* Don't force tiny headings globally; let base/layout sizing win for slides. */
+h2.title,.h2{font-weight:800}
+h3,.h3{font-weight:700}
+.lede{color:var(--text-2)}
+.dim{color:var(--text-2)}
+.dim2{color:var(--text-3)}
+
+/* Blob radius presets (8-value) */
+.ob-hero-radius{
+  border-radius:40% 60% 55% 45% / 55% 45% 55% 45%;
+}
+.ob-card-1{
+  border-radius:30% 70% 70% 30% / 30% 30% 70% 70%;
+}
+.ob-card-2{
+  border-radius:70% 30% 30% 70% / 60% 40% 60% 40%;
+}
+.ob-card-3{
+  border-radius:50% 50% 30% 70% / 40% 60% 40% 60%;
+}
+.ob-showcase{border-radius:60% 40% 45% 55% / 50% 55% 45% 50%}
+.ob-prompt{border-radius:45% 55% 50% 50% / 50% 50% 55% 45%}
+.ob-badge-radius{border-radius:30% 70% 70% 30% / 50% 50% 50% 50%}
+
+/* Optional: rounded-rectangle hero variant (for layouts that prefer a "panel" look) */
+.ob-hero-rect{
+  border-radius:34px;
+}
+
+/* Wide containers (prompt/long panels) should stay organic but NOT become huge ellipses. */
+.ob-wide{
+  border-radius:28px 44px 34px 52px / 34px 28px 46px 36px;
+}
+
+/* Safe padding layers (kept separate from border-radius so pills can reuse radius classes) */
+.ob-safe-hero{
+  /* +5px from previous safe inset request */
+  padding:clamp(47px,6vw,77px) !important;
+}
+.ob-safe-card{
+  padding:31px !important;
+  padding-left:37px !important;
+}
+.ob-safe-card.ob-card-2{
+  padding-top:33px !important;
+}
+.ob-safe-wide{
+  padding:27px 33px !important;
+}
+
+/* P3/P4 typography tuning: center + -2px for non-heading text */
+.ob-center{text-align:center}
+.ob-center .rowc{justify-content:center}
+.ob-text-compact p,
+.ob-text-compact .pill,
+.ob-text-compact .ob-pill{
+  font-size:calc(1em - 2px);
+}
+.ob-text-compact p{line-height:1.6}
+
+/* Core cards */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  -webkit-backdrop-filter:blur(16px);
+  backdrop-filter:blur(16px);
+}
+
+/* Leaf decorations (no external assets) */
+.ob-leafy{position:relative;overflow:hidden}
+.ob-leafy::before,
+.ob-leafy::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+  z-index:0; /* keep decoration behind text */
+  opacity:.55;
+  filter:blur(.0px);
+  transform-origin:50% 50%;
+  animation:ob-leaf 13s ease-in-out infinite;
+}
+.ob-leafy::before{
+  width:180px;height:120px;
+  right:-60px;top:-30px;
+  background:radial-gradient(closest-side, rgba(135,168,120,.45), transparent 70%);
+  transform:rotate(18deg);
+}
+.ob-leafy::after{
+  width:220px;height:160px;
+  left:-80px;bottom:-70px;
+  background:radial-gradient(closest-side, rgba(196,112,75,.35), transparent 72%);
+  transform:rotate(-12deg);
+  animation-duration:15s;
+}
+
+/* Ensure leafy card content is never obscured by decoration */
+.ob-leafy > *{
+  position:relative;
+  z-index:1;
+}
+
+/* Badge */
+.ob-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 14px;
+  font-family:var(--font-sans);
+  font-weight:600;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+  color:#ffffff;
+  background:linear-gradient(135deg,var(--sage), color-mix(in srgb,var(--sage) 82%, var(--text-1) 18%));
+  border:1px solid rgba(255,255,255,.22);
+}
+
+/* Pills with dot */
+.ob-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 12px;
+  border:1px solid var(--border);
+  background:var(--surface-2);
+  color:var(--text-1);
+  box-shadow:0 10px 26px rgba(61,50,41,.05);
+}
+.ob-pill::before{
+  content:"";
+  width:8px;height:8px;border-radius:999px;
+  background:var(--sand);
+}
+.ob-pill.sage{background:rgba(220,232,212,.85)}
+.ob-pill.sage::before{background:var(--sage)}
+.ob-pill.terra{background:rgba(245,221,208,.85)}
+.ob-pill.terra::before{background:var(--terracotta)}
+.ob-pill.sand{background:rgba(240,226,208,.88)}
+.ob-pill.sand::before{background:var(--sand)}
+
+/* Buttons */
+a.btn,button.btn,.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:12px 18px;
+  border:0;
+  color:#ffffff;
+  text-decoration:none;
+  font-family:var(--font-sans);
+  font-weight:700;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  background:linear-gradient(135deg,var(--terracotta), color-mix(in srgb,var(--terracotta) 78%, var(--text-1) 22%));
+  box-shadow:0 6px 20px rgba(196,112,75,.25);
+  transition:transform .4s ease, box-shadow .4s ease, filter .4s ease;
+}
+.btn:hover{transform:translateY(-2px) scale(1.01);filter:brightness(1.02);box-shadow:0 12px 28px rgba(196,112,75,.28)}
+
+/* Card hover */
+.card.ob-hover{transition:transform .4s ease, box-shadow .4s ease}
+.card.ob-hover:hover{transform:translateY(-4px) scale(1.01);box-shadow:0 30px 80px rgba(61,50,41,.10)}
+
+/* Blob morph samples */
+.ob-morph{
+  animation:ob-morph 8s ease-in-out infinite;
+}
+.ob-morph.d1{animation-delay:0s}
+.ob-morph.d2{animation-delay:.6s}
+.ob-morph.d3{animation-delay:1.2s}
+.ob-morph.d4{animation-delay:1.8s}
+.ob-morph.d5{animation-delay:2.4s}
+
+@keyframes ob-morph{
+  0%{border-radius:42% 58% 55% 45% / 55% 45% 60% 40%}
+  25%{border-radius:58% 42% 36% 64% / 44% 58% 42% 56%}
+  50%{border-radius:38% 62% 70% 30% / 56% 44% 62% 38%}
+  75%{border-radius:64% 36% 52% 48% / 48% 52% 40% 60%}
+  100%{border-radius:42% 58% 55% 45% / 55% 45% 60% 40%}
+}
+
+@keyframes ob-float{
+  0%,100%{transform:translate(0,0) rotate(0deg) scale(1)}
+  50%{transform:translate(18px,-14px) rotate(6deg) scale(1.04)}
+}
+@keyframes ob-float2{
+  0%,100%{transform:translate(0,0) rotate(0deg) scale(1)}
+  50%{transform:translate(-16px,12px) rotate(-5deg) scale(1.03)}
+}
+@keyframes ob-leaf{
+  0%,100%{transform:rotate(12deg)}
+  50%{transform:rotate(18deg)}
+}
+
+@media (max-width:768px){
+  /* Simpler shapes on small screens (still organic) */
+  .ob-hero-radius{border-radius:48% 52% 52% 48% / 52% 48% 52% 48%}
+  .ob-card-1,.ob-card-2,.ob-card-3,.ob-showcase,.ob-prompt{border-radius:18% 82% 68% 32% / 40% 40% 60% 60%}
+  h1.title,.h1{font-size:clamp(1.8rem,7vw,2.4rem)}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .deck::before,.deck::after,.ob-leafy::before,.ob-leafy::after,.ob-morph{animation:none !important}
+  a.btn,button.btn,.btn,.card.ob-hover{transition:none}
+}

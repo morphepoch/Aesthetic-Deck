@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Harness Engineering · 技术分享</title>
+<style data-inlined-from="assets/fonts.css">
+/* assets/fonts.css */
+/* html-ppt :: shared webfonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@200;300;400;500;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,800;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+
+</style>
+<style data-inlined-from="assets/base.css">
+/* assets/base.css */
+/* html-ppt :: base.css — reset + shared tokens + layout primitives */
+/* Default tokens. Themes in assets/themes/*.css override the :root block. */
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f7f7f8;
+  --surface: #ffffff;
+  --surface-2: #f2f2f4;
+  --border: rgba(0,0,0,.08);
+  --border-strong: rgba(0,0,0,.16);
+  --text-1: #111216;
+  --text-2: #55596a;
+  --text-3: #8a8f9e;
+  --accent: #3b6cff;
+  --accent-2: #7a5cff;
+  --accent-3: #ff5c8a;
+  --good: #1aaf6c;
+  --warn: #f5a524;
+  --bad:  #e0445a;
+  --grad: linear-gradient(135deg,#3b6cff,#7a5cff 55%,#ff5c8a);
+  --grad-soft: linear-gradient(135deg,#eef2ff,#f5ecff 55%,#ffeef5);
+  --radius: 18px;
+  --radius-sm: 12px;
+  --radius-lg: 26px;
+  --shadow: 0 10px 30px rgba(18,24,40,.08), 0 2px 6px rgba(18,24,40,.04);
+  --shadow-lg: 0 24px 60px rgba(18,24,40,.14), 0 6px 16px rgba(18,24,40,.06);
+  --font-sans: 'Inter','Noto Sans SC',-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+  --font-serif: 'Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-mono: 'JetBrains Mono','IBM Plex Mono',SFMono-Regular,Menlo,monospace;
+  --font-display: var(--font-sans);
+  --letter-tight: -.03em;
+  --letter-normal: -.01em;
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text-1);
+  font-family:var(--font-sans);font-weight:400;line-height:1.6;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  letter-spacing:var(--letter-normal)}
+img,svg,video{max-width:100%;display:block}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+code,kbd,pre,samp{font-family:var(--font-mono)}
+
+/* ================= SLIDE SYSTEM ================= */
+.deck{position:relative;width:100vw;height:100vh;overflow:hidden;background:var(--bg)}
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:72px 96px;
+  box-sizing:border-box;
+  opacity:0;pointer-events:none;
+  transition:opacity .5s var(--ease), transform .5s var(--ease);
+  transform:translateX(30px);
+  overflow:hidden;
+}
+.slide.is-active{opacity:1;pointer-events:auto;transform:translateX(0);z-index:2}
+.slide.is-prev{transform:translateX(-30px)}
+
+/* single-page standalone (used when a layout file is opened directly) */
+body.single .slide{position:relative;width:100vw;height:100vh;opacity:1;transform:none;pointer-events:auto}
+
+/* ================= TYPOGRAPHY ================= */
+.eyebrow{font-size:13px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--text-3)}
+.kicker{font-size:14px;font-weight:600;color:var(--accent);letter-spacing:.08em;text-transform:uppercase}
+h1.title,.h1{font-family:var(--font-display);font-size:72px;line-height:1.05;font-weight:800;letter-spacing:var(--letter-tight);margin:0 0 18px;color:var(--text-1)}
+h2.title,.h2{font-family:var(--font-display);font-size:54px;line-height:1.1;font-weight:700;letter-spacing:var(--letter-tight);margin:0 0 14px}
+h3,.h3{font-size:32px;line-height:1.2;font-weight:600;letter-spacing:var(--letter-normal);margin:0 0 10px}
+h4,.h4{font-size:22px;line-height:1.3;font-weight:600;margin:0 0 8px}
+.lede{font-size:22px;line-height:1.55;color:var(--text-2);font-weight:300;max-width:62ch}
+.dim{color:var(--text-2)}
+.dim2{color:var(--text-3)}
+.mono{font-family:var(--font-mono)}
+.serif{font-family:var(--font-serif)}
+.gradient-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+
+/* ================= LAYOUT PRIMITIVES ================= */
+.stack>*+*{margin-top:14px}
+.row{display:flex;gap:24px;align-items:center}
+.row.wrap{flex-wrap:wrap}
+.grid{display:grid;gap:24px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.center{display:flex;align-items:center;justify-content:center;text-align:center}
+.fill{flex:1}
+.sp-t{padding-top:24px}.sp-b{padding-bottom:24px}
+.mt-s{margin-top:8px}.mt-m{margin-top:18px}.mt-l{margin-top:32px}
+.mb-s{margin-bottom:8px}.mb-m{margin-bottom:18px}.mb-l{margin-bottom:32px}
+
+/* ================= CARDS ================= */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:26px 28px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.card-soft{background:var(--surface-2);border:1px solid var(--border)}
+.card-outline{background:transparent;border:1.5px solid var(--border-strong);box-shadow:none}
+.card-accent{background:var(--surface);border-top:3px solid var(--accent)}
+.card-hover{transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
+.card-hover:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+
+.pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:500;
+  background:var(--surface-2);color:var(--text-2);border:1px solid var(--border)}
+.pill-accent{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);border-color:color-mix(in srgb,var(--accent) 28%,transparent)}
+
+/* ================= BARS / DIVIDERS ================= */
+.divider{height:1px;background:var(--border);width:100%}
+.divider-accent{height:3px;width:72px;background:var(--accent);border-radius:2px}
+
+/* ================= CHROME (header/footer/progress) ================= */
+.deck-header{position:absolute;top:24px;left:40px;right:40px;display:flex;align-items:center;justify-content:space-between;
+  font-size:12px;color:var(--text-3);letter-spacing:.12em;text-transform:uppercase;z-index:10;pointer-events:none}
+.deck-footer{position:absolute;bottom:24px;left:40px;right:40px;display:flex;align-items:center;justify-content:space-between;
+  font-size:12px;color:var(--text-3);z-index:10;pointer-events:none}
+.slide-number::before{content:attr(data-current)}
+.slide-number::after{content:" / " attr(data-total)}
+.progress-bar{position:fixed;left:0;right:0;bottom:0;height:3px;background:transparent;z-index:20}
+.progress-bar > span{display:block;height:100%;width:0;background:var(--accent);transition:width .3s var(--ease)}
+
+/* ================= PRESENTER / OVERVIEW ================= */
+.notes{display:none!important}
+.notes-overlay{position:fixed;inset:auto 0 0 0;max-height:42vh;background:rgba(20,22,30,.95);color:#e8ebf4;
+  padding:20px 32px;font-size:16px;line-height:1.6;border-top:1px solid rgba(255,255,255,.1);transform:translateY(100%);
+  transition:transform .3s var(--ease);z-index:40;overflow:auto;font-family:var(--font-sans)}
+.notes-overlay.open{transform:translateY(0)}
+.overview{position:fixed;inset:0;background:rgba(10,12,18,.92);backdrop-filter:blur(12px);z-index:50;
+  display:none;padding:40px;overflow:auto}
+.overview.open{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;align-content:start}
+.overview .thumb{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  aspect-ratio:16/9;overflow:hidden;cursor:pointer;position:relative;color:var(--text-1);padding:16px;
+  font-size:11px;transition:transform .2s var(--ease)}
+.overview .thumb:hover{transform:scale(1.04)}
+.overview .thumb .n{position:absolute;top:8px;left:10px;font-weight:700;font-size:14px;color:var(--text-3)}
+.overview .thumb .t{position:absolute;bottom:10px;left:14px;right:14px;font-weight:600;color:var(--text-1)}
+
+/* ================= PRESENTER VIEW ================= */
+/* Presenter view opens in a separate popup window (S key).
+ * All presenter styles are self-contained in the popup HTML generated by runtime.js.
+ * The audience window (this file) is NOT affected — it stays as normal deck view.
+ * Only the .notes class below is needed to hide speaker notes from audience. */
+
+/* ================= UTILITY ================= */
+.hidden{display:none!important}
+.nowrap{white-space:nowrap}
+.tr{text-align:right}.tc{text-align:center}.tl{text-align:left}
+.uppercase{text-transform:uppercase;letter-spacing:.12em}
+
+/* ================= PRINT ================= */
+@media print{
+  .slide{position:relative;opacity:1!important;transform:none!important;page-break-after:always;height:100vh}
+  .deck-header,.deck-footer,.progress-bar,.notes-overlay,.overview{display:none!important}
+}
+
+</style>
+<style data-inlined-from="assets/animations/animations.css">
+/* assets/animations/animations.css */
+/* html-ppt :: animations.css
+ * Apply by adding class="anim-<name>" or data-anim="<name>".
+ * Durations are deliberately snappy; tweak --anim-dur per element.
+ */
+:root{--anim-dur:.7s;--anim-ease:cubic-bezier(.4,0,.2,1)}
+
+/* ---------- FADE DIRECTIONALS ---------- */
+@keyframes kf-fade-up{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:none}}
+@keyframes kf-fade-down{from{opacity:0;transform:translateY(-32px)}to{opacity:1;transform:none}}
+@keyframes kf-fade-left{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:none}}
+@keyframes kf-fade-right{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+.anim-fade-up{animation:kf-fade-up var(--anim-dur) var(--anim-ease) both}
+.anim-fade-down{animation:kf-fade-down var(--anim-dur) var(--anim-ease) both}
+.anim-fade-left{animation:kf-fade-left var(--anim-dur) var(--anim-ease) both}
+.anim-fade-right{animation:kf-fade-right var(--anim-dur) var(--anim-ease) both}
+
+/* ---------- RISE / DROP / ZOOM / BLUR / GLITCH ---------- */
+@keyframes kf-rise{from{opacity:0;transform:translateY(60px) scale(.97);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes kf-drop{from{opacity:0;transform:translateY(-60px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes kf-zoom{0%{opacity:0;transform:scale(.6)}60%{transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
+@keyframes kf-blur{from{opacity:0;filter:blur(18px)}to{opacity:1;filter:none}}
+@keyframes kf-glitch{0%{opacity:0;transform:translateX(0);clip-path:inset(0 0 0 0)}
+  20%{opacity:1;transform:translateX(-6px);clip-path:inset(20% 0 30% 0)}
+  40%{transform:translateX(4px);clip-path:inset(50% 0 10% 0)}
+  60%{transform:translateX(-3px);clip-path:inset(10% 0 60% 0)}
+  80%{transform:translateX(2px);clip-path:inset(0 0 0 0)}
+  100%{opacity:1;transform:none}}
+.anim-rise-in{animation:kf-rise .9s var(--anim-ease) both}
+.anim-drop-in{animation:kf-drop .8s var(--anim-ease) both}
+.anim-zoom-pop{animation:kf-zoom .7s cubic-bezier(.22,1.3,.36,1) both}
+.anim-blur-in{animation:kf-blur .8s var(--anim-ease) both}
+.anim-glitch-in{animation:kf-glitch .8s steps(5,end) both}
+
+/* ---------- TYPEWRITER ---------- */
+.anim-typewriter{display:inline-block;overflow:hidden;white-space:nowrap;border-right:2px solid currentColor;
+  width:0;animation:kf-type 2.4s steps(40,end) forwards, kf-caret 1s step-end infinite}
+@keyframes kf-type{to{width:100%}}
+@keyframes kf-caret{50%{border-color:transparent}}
+
+/* ---------- GLOW / SHIMMER / GRADIENT-FLOW ---------- */
+@keyframes kf-neon{0%,100%{text-shadow:0 0 8px var(--accent),0 0 20px var(--accent)}
+  50%{text-shadow:0 0 16px var(--accent),0 0 40px var(--accent),0 0 80px var(--accent)}}
+.anim-neon-glow{animation:kf-neon 2s ease-in-out infinite}
+
+.anim-shimmer-sweep{position:relative;overflow:hidden}
+.anim-shimmer-sweep::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(110deg,transparent 40%,rgba(255,255,255,.55) 50%,transparent 60%);
+  transform:translateX(-100%);animation:kf-shimmer 2.4s var(--anim-ease) infinite}
+@keyframes kf-shimmer{to{transform:translateX(100%)}}
+
+.anim-gradient-flow{background:linear-gradient(90deg,var(--accent),var(--accent-2,var(--accent)),var(--accent-3,var(--accent)),var(--accent));
+  background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+  animation:kf-gradflow 4s linear infinite}
+@keyframes kf-gradflow{to{background-position:300% 0}}
+
+/* ---------- STAGGER LIST ---------- */
+.anim-stagger-list > *{opacity:0;animation:kf-rise .65s var(--anim-ease) both}
+.anim-stagger-list > *:nth-child(1){animation-delay:.05s}
+.anim-stagger-list > *:nth-child(2){animation-delay:.15s}
+.anim-stagger-list > *:nth-child(3){animation-delay:.25s}
+.anim-stagger-list > *:nth-child(4){animation-delay:.35s}
+.anim-stagger-list > *:nth-child(5){animation-delay:.45s}
+.anim-stagger-list > *:nth-child(6){animation-delay:.55s}
+.anim-stagger-list > *:nth-child(7){animation-delay:.65s}
+.anim-stagger-list > *:nth-child(8){animation-delay:.75s}
+.anim-stagger-list > *:nth-child(n+9){animation-delay:.85s}
+
+/* ---------- COUNTER-UP (JS-driven, marker class only) ---------- */
+.counter{font-variant-numeric:tabular-nums}
+
+/* ---------- SVG PATH DRAW ---------- */
+.anim-path-draw path,.anim-path-draw line,.anim-path-draw polyline,.anim-path-draw circle,.anim-path-draw rect{
+  stroke-dasharray:1000;stroke-dashoffset:1000;animation:kf-draw 2s var(--anim-ease) forwards}
+@keyframes kf-draw{to{stroke-dashoffset:0}}
+
+/* ---------- PARALLAX TILT (hover) ---------- */
+.anim-parallax-tilt{transform-style:preserve-3d;transition:transform .4s var(--anim-ease)}
+.anim-parallax-tilt:hover{transform:perspective(900px) rotateX(6deg) rotateY(-8deg) translateZ(10px)}
+
+/* ---------- CARD FLIP 3D ---------- */
+@keyframes kf-flip{from{transform:perspective(1200px) rotateY(-90deg);opacity:0}
+  to{transform:perspective(1200px) rotateY(0);opacity:1}}
+.anim-card-flip-3d{animation:kf-flip .9s var(--anim-ease) both;transform-style:preserve-3d;backface-visibility:hidden}
+
+/* ---------- CUBE ROTATE 3D ---------- */
+@keyframes kf-cube{from{transform:perspective(1200px) rotateX(20deg) rotateY(-90deg) translateZ(-200px);opacity:0}
+  to{transform:perspective(1200px) rotateX(0) rotateY(0) translateZ(0);opacity:1}}
+.anim-cube-rotate-3d{animation:kf-cube 1s var(--anim-ease) both}
+
+/* ---------- PAGE TURN 3D ---------- */
+@keyframes kf-pageturn{from{transform:perspective(1600px) rotateY(-85deg);transform-origin:left center;opacity:0}
+  to{transform:perspective(1600px) rotateY(0);opacity:1}}
+.anim-page-turn-3d{animation:kf-pageturn 1s var(--anim-ease) both;transform-origin:left center}
+
+/* ---------- PERSPECTIVE ZOOM ---------- */
+@keyframes kf-pzoom{from{opacity:0;transform:perspective(1400px) translateZ(-400px) rotateX(12deg)}
+  to{opacity:1;transform:none}}
+.anim-perspective-zoom{animation:kf-pzoom 1s var(--anim-ease) both}
+
+/* ---------- MARQUEE SCROLL ---------- */
+.anim-marquee-scroll{display:flex;gap:48px;white-space:nowrap;animation:kf-marquee 20s linear infinite}
+@keyframes kf-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ---------- KEN BURNS ---------- */
+@keyframes kf-kenburns{0%{transform:scale(1) translate(0,0)}100%{transform:scale(1.15) translate(-2%,-1%)}}
+.anim-kenburns{animation:kf-kenburns 14s ease-in-out infinite alternate}
+
+/* ---------- CONFETTI BURST (pseudo — pure CSS sparkles) ---------- */
+.anim-confetti-burst{position:relative}
+.anim-confetti-burst::before,.anim-confetti-burst::after{
+  content:"";position:absolute;top:50%;left:50%;width:8px;height:8px;border-radius:50%;
+  background:var(--accent);box-shadow:
+    20px -30px 0 var(--accent-2,var(--accent)),-25px -20px 0 var(--accent-3,var(--accent)),
+    30px 20px 0 var(--good,#1aaf6c),-30px 25px 0 var(--warn,#f5a524),
+    40px -10px 0 var(--bad,#e0445a),-45px 0 0 var(--accent),
+    10px 40px 0 var(--accent-2,var(--accent)),-15px -40px 0 var(--accent-3,var(--accent));
+  opacity:0;animation:kf-confetti 1.2s var(--anim-ease) forwards}
+.anim-confetti-burst::after{animation-delay:.15s;transform:rotate(45deg)}
+@keyframes kf-confetti{0%{opacity:0;transform:scale(.2)}30%{opacity:1}100%{opacity:0;transform:scale(2.2)}}
+
+/* ---------- SPOTLIGHT ---------- */
+@keyframes kf-spot{0%{clip-path:circle(0% at 50% 50%)}100%{clip-path:circle(140% at 50% 50%)}}
+.anim-spotlight{animation:kf-spot 1.1s var(--anim-ease) both}
+
+/* ---------- MORPH SHAPE (SVG) ---------- */
+.anim-morph-shape path{animation:kf-morph 6s ease-in-out infinite alternate}
+@keyframes kf-morph{0%{d:path("M60,120 Q120,20 180,120 T300,120")}
+  100%{d:path("M60,120 Q120,220 180,120 T300,120")}}
+
+/* ---------- RIPPLE REVEAL ---------- */
+@keyframes kf-ripple{0%{clip-path:circle(0% at 20% 80%);opacity:.4}
+  100%{clip-path:circle(160% at 20% 80%);opacity:1}}
+.anim-ripple-reveal{animation:kf-ripple 1.2s var(--anim-ease) both}
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce){
+  [class*="anim-"]{animation:none!important;transition:none!important}
+}
+
+</style>
+<style data-inlined-from="style.css">
+/* ../../../../vaka/req_ddfa820b/harness-deck/style.css */
+/* harness-deck — pitch-deck style with presenter mode */
+.tpl-harness-deck{
+  --bg:#ffffff;--bg-soft:#f6f7fb;--surface:#ffffff;--surface-2:#f2f4fa;
+  --border:rgba(20,25,60,.08);--border-strong:rgba(20,25,60,.18);
+  --text-1:#0d1130;--text-2:#4a5070;--text-3:#8a90ad;
+  --accent:#3b5bff;--accent-2:#7a46ff;--accent-3:#d94cff;
+  --grad:linear-gradient(135deg,#3b5bff 0%,#7a46ff 55%,#d94cff 100%);
+  --grad-soft:linear-gradient(135deg,#eef1ff,#f4edff 55%,#fbedff);
+  --radius:20px;--radius-lg:28px;
+  --shadow:0 14px 40px rgba(20,25,60,.08),0 2px 8px rgba(20,25,60,.04);
+  font-family:'Inter','Noto Sans SC',sans-serif;
+}
+.tpl-harness-deck .slide{padding:88px 112px}
+.tpl-harness-deck .kicker{color:var(--accent);font-weight:700;font-size:14px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px 0}
+.tpl-harness-deck .h1{font-size:76px;line-height:1.08;font-weight:900;letter-spacing:-.035em;margin:0 0 24px 0}
+.tpl-harness-deck .h2{font-size:56px;font-weight:800;letter-spacing:-.03em;margin:0 0 28px 0}
+.tpl-harness-deck .mega{font-size:160px;font-weight:900;line-height:.95;letter-spacing:-.05em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tpl-harness-deck .mega-sub{font-size:28px;color:var(--text-2);margin-top:18px}
+.tpl-harness-deck .cover-bg{position:absolute;inset:0;background:var(--grad-soft);z-index:-1}
+.tpl-harness-deck .cover-blob{position:absolute;right:-140px;top:-140px;width:560px;height:560px;border-radius:50%;background:var(--grad);filter:blur(8px);opacity:.35;z-index:-1}
+.tpl-harness-deck .brand-dot{display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--grad);margin-right:10px;vertical-align:middle}
+.tpl-harness-deck .brand{font-weight:800;font-size:22px;letter-spacing:-.02em}
+.tpl-harness-deck .card{border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);padding:26px 28px}
+.tpl-harness-deck .card-accent{border-top:4px solid var(--accent)}
+.tpl-harness-deck .num-tag{font-family:'Inter',sans-serif;font-size:14px;font-weight:700;color:var(--accent);letter-spacing:.12em}
+.tpl-harness-deck .big-q{font-family:'Playfair Display',serif;font-size:56px;line-height:1.15;font-weight:700;letter-spacing:-.02em;max-width:22ch}
+.tpl-harness-deck .metric{display:flex;flex-direction:column;gap:6px}
+.tpl-harness-deck .metric .n{font-size:64px;font-weight:900;letter-spacing:-.035em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1}
+.tpl-harness-deck .metric .l{color:var(--text-2);font-size:16px}
+.tpl-harness-deck .team-card{text-align:center;padding:32px 20px}
+.tpl-harness-deck .avatar{width:96px;height:96px;border-radius:50%;margin:0 auto 14px;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:32px}
+.tpl-harness-deck .ask-box{background:var(--grad);color:#fff;padding:56px 64px;border-radius:var(--radius-lg);box-shadow:0 30px 70px rgba(59,91,255,.35)}
+.tpl-harness-deck .ask-box .h2{color:#fff}
+.tpl-harness-deck .ask-box .dim{color:rgba(255,255,255,.85)}
+.tpl-harness-deck .traction-bar{display:flex;align-items:flex-end;gap:14px;height:240px;margin-top:24px}
+.tpl-harness-deck .traction-bar .bar{flex:1;background:var(--grad);border-radius:8px 8px 0 0;position:relative;min-height:20px}
+.tpl-harness-deck .traction-bar .bar span{position:absolute;bottom:-28px;left:0;right:0;text-align:center;font-size:13px;color:var(--text-3)}
+.tpl-harness-deck .traction-bar .bar em{position:absolute;top:-28px;left:0;right:0;text-align:center;font-size:14px;font-weight:700;font-style:normal;color:var(--text-1)}
+.tpl-harness-deck .section-num{font-size:200px;font-weight:900;line-height:.9;color:var(--surface-2);position:absolute;right:72px;bottom:40px;z-index:0;letter-spacing:-.05em}
+.tpl-harness-deck .slide > *{position:relative;z-index:1}
+.tpl-harness-deck .deck-footer{color:var(--text-3)}
+.tpl-harness-deck .lede{font-size:20px;line-height:1.6;color:var(--text-2)}
+.tpl-harness-deck .mono{font-family:'JetBrains Mono',monospace;font-size:0.9em;padding:2px 10px;border-radius:8px;background:rgba(59,91,255,0.08);color:var(--accent)}
+.tpl-harness-deck .accent{color:var(--accent);font-weight:700}
+.tpl-harness-deck .speaker{display:flex;align-items:center;gap:14px;margin-top:36px}
+.tpl-harness-deck .speaker .av{width:48px;height:48px;border-radius:50%;background:var(--grad)}
+.tpl-harness-deck .speaker b{display:block;font-size:17px}
+.tpl-harness-deck .speaker span{font-size:14px;color:var(--text-3)}
+.tpl-harness-deck .agenda-row{display:grid;grid-template-columns:56px 1fr auto;gap:18px;align-items:center;padding:18px 22px;border:1px solid var(--border);border-radius:14px;margin-bottom:12px;background:var(--surface)}
+.tpl-harness-deck .agenda-row .num{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--accent);font-weight:700}
+.tpl-harness-deck .agenda-row .t{font-size:18px;font-weight:600;color:var(--text-1)}
+.tpl-harness-deck .agenda-row .d{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text-3)}
+.tpl-harness-deck .feature-row{display:flex;gap:16px;padding:18px 0;border-bottom:1px solid var(--border)}
+.tpl-harness-deck .feature-row:last-child{border-bottom:none}
+.tpl-harness-deck .feature-row .num{font-size:28px;font-weight:700;line-height:1;flex-shrink:0}
+.tpl-harness-deck .feature-row b{display:block;font-size:18px;margin-bottom:6px;color:var(--text-1)}
+.tpl-harness-deck .feature-row .dim{font-size:15px;color:var(--text-2);line-height:1.6;margin:0}
+.tpl-harness-deck .blue{color:#3b5bff}
+.tpl-harness-deck .green{color:#22c55e}
+.tpl-harness-deck .orange{color:#f97316}
+.tpl-harness-deck .purple{color:#a855f7}
+.tpl-harness-deck .red{color:#ef4444}
+.tpl-harness-deck .grid{display:grid;gap:22px}
+.tpl-harness-deck .grid.g2{grid-template-columns:1fr 1fr}
+.tpl-harness-deck .grid.g3{grid-template-columns:repeat(3,1fr)}
+.tpl-harness-deck .grid.g4{grid-template-columns:repeat(4,1fr)}
+.tpl-harness-deck .mt-s{margin-top:12px}
+.tpl-harness-deck .mt-m{margin-top:24px}
+.tpl-harness-deck .mt-l{margin-top:40px}
+.tpl-harness-deck .tc{text-align:center}
+.tpl-harness-deck .center{display:flex;align-items:center;justify-content:center;min-height:100%}
+.tpl-harness-deck .tag{display:inline-block;font-size:13px;padding:6px 12px;border-radius:999px;background:rgba(59,91,255,0.1);color:var(--accent);font-weight:600;margin-right:8px;margin-bottom:8px}
+.tpl-harness-deck .pill{display:inline-block;font-size:14px;padding:10px 18px;border-radius:999px;background:var(--surface-2);color:var(--text-1);font-weight:700;margin-right:10px}
+.tpl-harness-deck .pill-accent{background:var(--grad);color:#fff}
+.tpl-harness-deck .terminal{border-radius:14px;overflow:hidden;background:#0d1117}
+.tpl-harness-deck .terminal .bar{display:flex;align-items:center;gap:8px;padding:12px 18px;background:#161b22;border-bottom:1px solid rgba(255,255,255,0.08)}
+.tpl-harness-deck .terminal .bar .dot{width:12px;height:12px;border-radius:50%;background:#ff5f57}
+.tpl-harness-deck .terminal .bar .dot:nth-child(2){background:#febc2e}
+.tpl-harness-deck .terminal .bar .dot:nth-child(3){background:#28c940}
+.tpl-harness-deck .terminal pre{padding:22px 26px;margin:0;font-family:'JetBrains Mono',monospace;font-size:14px;line-height:1.7;color:#e6edf3;white-space:pre-wrap}
+.tpl-harness-deck .terminal .kw{color:#ff7b72}
+.tpl-harness-deck .terminal .fn{color:#d2a8ff}
+.tpl-harness-deck .terminal .str{color:#a5d6ff}
+.tpl-harness-deck .terminal .num{color:#79c0ff}
+.tpl-harness-deck .terminal .cmt{color:#8b949e;font-style:italic}
+.tpl-harness-deck .comparison-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;align-items:start;padding:24px;border:1px solid var(--border);border-radius:16px;margin-bottom:14px;background:var(--surface)}
+.tpl-harness-deck .comparison-row h4{margin:0 0 10px 0;font-size:18px;color:var(--text-1)}
+.tpl-harness-deck .comparison-row p{margin:0;color:var(--text-2);font-size:15px;line-height:1.6}
+.tpl-harness-deck .comparison-row .phase-label{display:inline-block;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:700;margin-bottom:12px}
+.tpl-harness-deck .phase-1{background:rgba(59,91,255,0.1);color:#3b5bff}
+.tpl-harness-deck .phase-2{background:rgba(122,70,255,0.1);color:#7a46ff}
+.tpl-harness-deck .phase-3{background:rgba(217,76,255,0.1);color:#d94cff}
+.tpl-harness-deck .stack > * + *{margin-top:14px}
+.tpl-harness-deck .gradient-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+</style>
+</head>
+<body class="tpl-harness-deck">
+<div class="deck">
+
+  <!-- 1. Cover -->
+  <section class="slide" data-title="Cover">
+    <div class="cover-bg"></div>
+    <div class="cover-blob"></div>
+    <p class="kicker">Harness Engineering · 2026</p>
+    <h1 class="h1 anim-fade-up" data-anim="fade-up">从 <span class="gradient-text">Prompt / Context</span><br>到 Agent Runtime 的工程转向</h1>
+    <p class="lede mt-m">为什么后端工程师现在开始关心 \"Harness\"？它比 Prompt 和 Context 多了什么？</p>
+    <div class="deck-footer"><span>技术分享 · 15 min</span><span class="slide-number" data-current="1" data-total="10"></span></div>
+    <aside class="notes">
+      <p>大家好，今天想跟大家聊一个我观察到的趋势——越来越多后端工程师开始讨论 \"Harness Engineering\"，这个词不再只是 AI 研究者的专利，而是变成了我们每天要面对的工程问题。</p>
+      <p>先介绍一下今天的分享结构：15分钟，10页，我们会从 \"为什么 Harness 很重要\" 讲起，对比 Prompt、Context、Harness 三者的差异，然后看 Harness 的具体组成、Runtime 是什么样的，最后给一个最小落地方案和最容易误解的5个点。</p>
+    </aside>
+  </section>
+
+  <!-- 2. Agenda -->
+  <section class="slide" data-title="Agenda">
+    <span class="section-num">01</span>
+    <p class="num-tag">AGENDA</p>
+    <h2 class="h2 mt-s">今天我们讲 8 件事</h2>
+    <div class="grid g2 mt-l">
+      <div class="card card-accent anim-fade-up" data-anim="fade-up">
+        <h4>01 · 为什么后端工程师开始关心 Harness</h4>
+        <p class="dim">Prompt 不够用了，Context 只是一部分，生产级 Agent 需要工程化</p>
+      </div>
+      <div class="card card-accent anim-fade-up" data-anim="fade-up" data-anim-delay="0.1">
+        <h4>02 · Prompt / Context / Harness 三阶段差异</h4>
+        <p class="dim">从指令 → 响应，到上下文 → 理解，再到目标 → 自主</p>
+      </div>
+      <div class="card card-accent anim-fade-up" data-anim="fade-up" data-anim-delay="0.2">
+        <h4>03 · Harness 的 5 大组成</h4>
+        <p class="dim">环境、工具、知识、反馈、约束</p>
+      </div>
+      <div class="card card-accent anim-fade-up" data-anim="fade-up" data-anim-delay="0.3">
+        <h4>04 · Runtime Substrate & 知识层/状态层位置</h4>
+        <p class="dim">Thread / Turn / Item / App Server，以及 Resource/Wiki/Profile/Skill 的架构</p>
+      </div>
+      <div class="card card-accent anim-fade-up" data-anim="fade-up" data-anim-delay="0.4">
+        <h4>05 · 生产 Harness vs 评测 Harness</h4>
+        <p class="dim">两者的关系和异同</p>
+      </div>
+      <div class="card card-accent anim-fade-up" data-anim="fade-up" data-anim-delay="0.5">
+        <h4>06 · Python/TS + Postgres/Docker 最小落地</h4>
+        <p class="dim">给后端工程师的实用参考架构</p>
+      </div>
+      <div class="card card-accent anim-fade-up" data-anim="fade-up" data-anim-delay="0.6" style="grid-column:span 2;">
+        <h4>07 · 最容易误解的 5 个点</h4>
+        <p class="dim">澄清常见的误区，避免走弯路</p>
+      </div>
+    </div>
+    <aside class="notes">
+      <p>先过一下议程，10页，15分钟。</p>
+      <p>我特别想强调第5页——\"知识层和状态层在Harness中的位置\"，这是很多后端工程师最关心的：Wiki放哪？User Profile放哪？Skill放哪？Working Memory放哪？第5页会给一个清晰的架构图。</p>
+      <p>第7页是最小落地方案，直接给一个用Python/TypeScript + Postgres + Docker能跑起来的架构，不是空架子。</p>
+    </aside>
+  </section>
+
+  <!-- 3. Why Harness -->
+  <section class="slide" data-title="Why Harness">
+    <span class="section-num">02</span>
+    <p class="num-tag">WHY NOW</p>
+    <h2 class="h2 mt-s">为什么后端工程师<br>开始关心 <span class="gradient-text">Harness</span>？</h2>
+    <div class="grid g3 mt-l">
+      <div class="card card-accent anim-fade-up" data-anim="fade-up">
+        <h4>Prompt 不够用了</h4>
+        <p class="dim">只靠 \"system prompt + user input\"，Agent 无法在真实环境中完成复杂任务</p>
+      </div>
+      <div class="card card-accent anim-fade-up" data-anim="fade-up" data-anim-delay="0.1">
+        <h4>Context 只是一部分</h4>
+        <p class="dim">RAG、长上下文、记忆——这些都很重要，但它们只是更大架构中的一个组件</p>
+      </div>
+      <div class="card card-accent anim-fade-up" data-anim="fade-up" data-anim-delay="0.2">
+        <h4>生产级 Agent 需要工程化</h4>
+        <p class="dim">错误恢复、状态持久化、权限控制、可观测性——这些都是后端的老本行</p>
+      </div>
+    </div>
+    <p class="lede mt-l">核心转变：从 <span class="mono">"我想让 AI 说什么"</span> → 到 <span class="mono">"我想让 AI 在什么环境下、用什么工具、遵循什么约束、完成什么目标"</span></p>
+    <aside class="notes">
+      <p>为什么现在？因为我们发现——只靠 Prompt Engineering，根本做不出能在生产跑的 Agent。</p>
+      <p>我举个例子：假设你想做一个\"帮工程师修复线上Bug\"的Agent。你光给一个Prompt说\"你是资深工程师\"有用吗？没用。因为Agent需要：读Log、查文档、看代码、本地复现、写修复、跑测试、发PR——这些根本不是Prompt能搞定的。</p>
+      <p>Context Engineering往前走了一步，但还是不够。</p>
+    </aside>
+  </section>
+
+  <!-- 4. Three Phases -->
+  <section class="slide" data-title="Three Phases">
+    <span class="section-num">03</span>
+    <p class="num-tag">EVOLUTION</p>
+    <h2 class="h2 mt-s">Prompt / Context / Harness<br>三阶段差异</h2>
+    <div class="grid g3 mt-l">
+      <div class="card card-accent anim-fade-up" data-anim="fade-up">
+        <h4>Phase 1 · Prompt</h4>
+        <p class="dim">指令 → 响应</p>
+        <p class="mt-s" style="font-size:14px;">告诉 AI "每一步做什么"，期望确定性输出</p>
+        <div class="mt-m">
+          <span class="tag">Zero-shot</span>
+          <span class="tag">Few-shot</span>
+          <span class="tag">CoT</span>
+        </div>
+      </div>
+      <div class="card card-accent anim-fade-up" data-anim="fade-up" data-anim-delay="0.1">
+        <h4>Phase 2 · Context</h4>
+        <p class="dim">上下文 → 理解</p>
+        <p class="mt-s" style="font-size:14px;">给 AI "足够背景"，期望它基于信息推理</p>
+        <div class="mt-m">
+          <span class="tag">RAG</span>
+          <span class="tag">长上下文</span>
+          <span class="tag">记忆</span>
+        </div>
+      </div>
+      <div class="card card-accent anim-fade-up" data-anim="fade-up" data-anim-delay="0.2">
+        <h4>Phase 3 · Harness</h4>
+        <p class="dim">目标 → 自主</p>
+        <p class="mt-s" style="font-size:14px;">告诉 AI "目标是什么"，让它在约束内自己想办法</p>
+        <div class="mt-m">
+          <span class="tag">环境</span>
+          <span class="tag">工具</span>
+          <span class="tag">反馈</span>
+          <span class="tag">约束</span>
+        </div>
+      </div>
+    </div>
+    <div class="card mt-l">
+      <h4>核心公式</h4>
+      <p class="lede mt-s" style="font-size:22px;"><span class="gradient-text" style="font-weight:800;">Harness = 环境 + 工具 + 知识 + 反馈 + 约束</span></p>
+    </div>
+    <aside class="notes">
+      <p>这三阶段不是互相替代的，是层层叠加的——Harness包含了Context，Context包含了Prompt。</p>
+      <p>我再用刚才\"修Bug\"的例子对比一下：</p>
+      <p>Prompt阶段：你写\"你是资深SRE，帮我看看这个错误日志\" → AI看完说\"这看起来像是个数据库连接问题\" → 没了。</p>
+      <p>Context阶段：你不光给错误日志，还把相关的Wiki文档、最近的代码变更都通过RAG塞进去 → AI能给出更准确的分析，但还是没法执行操作。</p>
+      <p>Harness阶段：你说\"目标是把这个Bug修复并部署\"，然后给它一套环境和工具 → AI自己就能把事办了。</p>
+    </aside>
+  </section>
+
+  <!-- 5. Harness Components -->
+  <section class="slide" data-title="Harness Components">
+    <span class="section-num">04</span>
+    <p class="num-tag">ANATOMY</p>
+    <h2 class="h2 mt-s">Harness 的 5 大组成</h2>
+    <div class="grid g3 mt-l">
+      <div class="card card-accent anim-fade-up" data-anim="fade-up">
+        <h4>环境 Environment</h4>
+        <p class="dim">Agent 运行的"地方"：容器、沙箱、文件系统、网络访问、云资源</p>
+        <p class="mt-s" style="font-size:13px;color:var(--text-3);">例：一个完整的开发环境，能跑测试、能执行 Git 命令</p>
+      </div>
+      <div class="card card-accent anim-fade-up" data-anim="fade-up" data-anim-delay="0.08">
+        <h4>工具 Tools</h4>
+        <p class="dim">Agent 能"用"的能力：函数调用、API、CLI、SDK</p>
+        <p class="mt-s" style="font-size:13px;color:var(--text-3);">例：search_code()、run_tests()、create_pr()</p>
+      </div>
+      <div class="card card-accent anim-fade-up" data-anim="fade-up" data-anim-delay="0.16">
+        <h4>知识 Knowledge</h4>
+        <p class="dim">Agent 知道的"东西"：文档、Wiki、代码库、历史对话、用户 Profile</p>
+        <p class="mt-s" style="font-size:13px;color:var(--text-3);">例：团队的编码规范、过往的Bug修复记录</p>
+      </div>
+      <div class="card card-accent anim-fade-up" data-anim="fade-up" data-anim-delay="0.24">
+        <h4>反馈 Feedback</h4>
+        <p class="dim">Agent 收到的"信号"：工具执行结果、用户确认、测试是否通过、环境状态变化</p>
+        <p class="mt-s" style="font-size:13px;color:var(--text-3);">例："测试挂了，错误是XXX"、"这个PR已被批准"</p>
+      </div>
+      <div class="card card-accent anim-fade-up" data-anim="fade-up" data-anim-delay="0.32">
+        <h4>约束 Constraints</h4>
+        <p class="dim">Agent 不能"碰"的红线：安全策略、权限边界、成本限制、时间预算</p>
+        <p class="mt-s" style="font-size:13px;color:var(--text-3);">例：不能删生产数据、API调用不能超过 $10/天</p>
+      </div>
+      <div class="card mt-m" style="grid-column:span 3;">
+        <h4>关键洞察</h4>
+        <p class="lede mt-s">这五件事，没有一件是模型本身做的——它们都是 <span class="gradient-text" style="font-weight:700;">我们作为工程师要搭出来的 "基础设施"</span></p>
+      </div>
+    </div>
+    <aside class="notes">
+      <p>这一页是核心——Harness的5大组件。</p>
+      <p>再强调一遍：这5个组件没有一个是模型本身负责的——模型只负责"思考"和"决策"，但在哪思考、用什么工具思考、基于什么知识思考、思考完的结果怎么反馈、思考过程有什么约束——全是我们要写代码实现的。</p>
+      <p>你现在应该明白为什么后端工程师开始关心这个了——这不就是我们天天在干的事吗？</p>
+    </aside>
+  </section>
+
+  <!-- 6. Runtime & Knowledge Layers -->
+  <section class="slide" data-title="Runtime & Knowledge Layers">
+    <span class="section-num">05</span>
+    <p class="num-tag">ARCHITECTURE</p>
+    <h2 class="h2 mt-s">Runtime Substrate & 知识层/状态层</h2>
+    <div class="grid g2 mt-l">
+      <div>
+        <h4>Runtime Substrate</h4>
+        <div class="card">
+          <div class="mt-s"><span class="tag">Thread</span> 会话级别上下文</div>
+          <div class="mt-s"><span class="tag">Turn</span> 单轮交互</div>
+          <div class="mt-s"><span class="tag">Item</span> 单个执行项（工具调用、推理等）</div>
+          <div class="mt-s"><span class="tag">App Server</span> 承载整个系统的服务</div>
+        </div>
+      </div>
+      <div>
+        <h4>知识层 & 状态层</h4>
+        <div class="card">
+          <div class="mt-s"><span class="tag">Resource / Wiki</span> 静态知识（检索增强用）</div>
+          <div class="mt-s"><span class="tag">Profile / Memory</span> 用户/Agent 长期记忆</div>
+          <div class="mt-s"><span class="tag">Skill</span> 可复用的能力模块</div>
+          <div class="mt-s"><span class="tag">Working Memory</span> 当前任务的短期工作区</div>
+        </div>
+      </div>
+    </div>
+    <div class="card mt-l">
+      <h4>架构关系</h4>
+      <p class="lede mt-s">Resource/Wiki 是检索源 → Skill 是可执行模块 → Profile/Memory 是持久状态 → Working Memory 是当前上下文窗口，这些都在 Harness 框架内协同工作</p>
+    </div>
+    <aside class="notes">
+      <p>这一页回答很多后端工程师最关心的问题：这些东西在架构上怎么放？</p>
+      <p>Runtime Substrate：Thread对应整个会话，Turn对应单轮交互，Item对应单个执行项（比如一次工具调用），App Server承载所有。</p>
+      <p>知识层和状态层：Resource/Wiki是静态知识（供RAG检索），Profile/Memory是长期记忆，Skill是封装好的能力模块，Working Memory是当前任务的短期工作区。</p>
+    </aside>
+  </section>
+
+  <!-- 7. Production vs Evaluation -->
+  <section class="slide" data-title="Production vs Evaluation">
+    <span class="section-num">06</span>
+    <p class="num-tag">PERSPECTIVE</p>
+    <h2 class="h2 mt-s">生产 Harness vs 评测 Harness</h2>
+    <div class="grid g2 mt-l">
+      <div class="card card-accent">
+        <h4>生产 Harness</h4>
+        <p class="dim mt-s">面向真实用户、真实环境、真实任务</p>
+        <ul style="margin-top:16px;font-size:14px;color:var(--text-2);line-height:1.8;">
+          <li>高可用、容错、错误恢复</li>
+          <li>安全控制、权限边界</li>
+          <li>可观测性（日志/指标/追踪）</li>
+          <li>成本优化和限流</li>
+        </ul>
+      </div>
+      <div class="card card-accent">
+        <h4>评测 Harness</h4>
+        <p class="dim mt-s">面向 Benchmark、可复现、可比较</p>
+        <ul style="margin-top:16px;font-size:14px;color:var(--text-2);line-height:1.8;">
+          <li>环境标准化、隔离</li>
+          <li>证据留存、执行路径记录</li>
+          <li>评分系统、Metric 收集</li>
+          <li>支持 A/B 测试和对比</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card mt-l">
+      <h4>相同点</h4>
+      <p class="lede mt-s">两者共享核心概念：都需要把 <span class="gradient-text" style="font-weight:700;">环境、工具、知识、反馈回路</span> 结构化出来</p>
+    </div>
+    <aside class="notes">
+      <p>很多人会忽略：生产环境的Harness和做评测的Harness关注点不一样。</p>
+      <p>生产环境关心：高可用、容错、安全、成本、可观测性——这些是后端工程师的老本行。</p>
+      <p>评测环境关心：标准化、可复现、证据留存、评分系统——为了公平比较不同方案。</p>
+      <p>但两者的核心骨架是一样的：都需要把环境、工具、知识、反馈回路这些东西结构化地管理起来。</p>
+    </aside>
+  </section>
+
+  <!-- 8. Minimal Implementation -->
+  <section class="slide" data-title="Minimal Implementation">
+    <span class="section-num">07</span>
+    <p class="num-tag">REFERENCE</p>
+    <h2 class="h2 mt-s">Python/TS + Postgres/Docker<br>最小落地</h2>
+    <div class="grid g2 mt-l">
+      <div>
+        <h4>技术栈（供参考）</h4>
+        <div class="card">
+          <p class="dim"><span class="tag">LangGraph / AutoGen</span> 编排框架</p>
+          <p class="dim mt-s"><span class="tag">PostgreSQL</span> 状态持久化</p>
+          <p class="dim mt-s"><span class="tag">Docker</span> 环境隔离和沙箱</p>
+          <p class="dim mt-s"><span class="tag">FastAPI / Express</span> App Server</p>
+          <p class="dim mt-s"><span class="tag">OpenTelemetry</span> 可观测性</p>
+        </div>
+      </div>
+      <div>
+        <h4>核心表结构思路</h4>
+        <div class="card">
+          <p class="dim"><span class="tag">thread</span> 会话记录</p>
+          <p class="dim mt-s"><span class="tag">turn</span> 交互轮次</p>
+          <p class="dim mt-s"><span class="tag">tool_execution</span> 工具调用记录</p>
+          <p class="dim mt-s"><span class="tag">memory_profile</span> 用户/Agent 记忆</p>
+          <p class="dim mt-s"><span class="tag">knowledge_index</span> 检索索引</p>
+        </div>
+      </div>
+    </div>
+    <p class="lede mt-l">核心原则：先跑通最小闭环（目标 → 工具调用 → 反馈 → 完成），再逐步加约束和增强能力</p>
+    <aside class="notes">
+      <p>这一页给后端工程师的实用参考。</p>
+      <p>技术栈方面，LangGraph或AutoGen都是不错的编排选择，PostgreSQL存状态，Docker做环境隔离和沙箱，FastAPI或Express做App Server，OpenTelemetry做可观测性。</p>
+      <p>表结构思路：thread表存会话，turn表存每一轮交互，tool_execution存工具调用记录，memory_profile存用户/Agent长期记忆，knowledge_index存检索索引。</p>
+      <p>核心原则：先跑通最小闭环，再逐步优化。</p>
+    </aside>
+  </section>
+
+  <!-- 9. Common Misconceptions -->
+  <section class="slide" data-title="Common Misconceptions">
+    <span class="section-num">08</span>
+    <p class="num-tag">CLARIFICATION</p>
+    <h2 class="h2 mt-s">最容易误解的 5 个点</h2>
+    <div class="grid g2 mt-l">
+      <div class="card card-accent anim-fade-up" data-anim="fade-up">
+        <h4>❌ Harness 不是 Prompt 的新名字</h4>
+        <p class="dim">Harness 包含 Prompt，但远不止 Prompt——还包括环境、工具、反馈、约束等</p>
+      </div>
+      <div class="card card-accent anim-fade-up" data-anim="fade-up" data-anim-delay="0.1">
+        <h4>❌ 模型不是越强大越好</h4>
+        <p class="dim">在 Harness 框架下，合适的工具和约束往往比一味堆模型能力更重要</p>
+      </div>
+      <div class="card card-accent anim-fade-up" data-anim="fade-up" data-anim-delay="0.2">
+        <h4>❌ Harness 不只是 AI 团队的事</h4>
+        <p class="dim">后端、安全、DevOps 都能发挥巨大价值——这是系统工程问题</p>
+      </div>
+      <div class="card card-accent anim-fade-up" data-anim="fade-up" data-anim-delay="0.3">
+        <h4>❌ 不要一开始就追求完美</h4>
+        <p class="dim">先跑通最小闭环，再逐步迭代——这和我们做其他系统是一样的</p>
+      </div>
+      <div class="card card-accent anim-fade-up" data-anim="fade-up" data-anim-delay="0.4" style="grid-column:span 2;">
+        <h4>❌ 不要忽略安全</h4>
+        <p class="dim">Agent 能调用工具，意味着风险也被放大了——沙箱、权限控制、审计日志一个都不能少</p>
+      </div>
+    </div>
+    <aside class="notes">
+      <p>最后澄清几个最常见的误解。</p>
+      <p>第一，Harness不是Prompt的新名字——Harness包含Prompt，但远不止Prompt，还包括环境、工具、反馈、约束等。</p>
+      <p>第二，模型不是越强大越好——在Harness框架下，合适的工具和约束往往比一味堆模型能力更重要，也更可控。</p>
+      <p>第三，Harness不只是AI团队的事——后端、安全、DevOps都能发挥巨大价值，这本质上是系统工程问题。</p>
+      <p>第四，不要一开始就追求完美——先跑通最小闭环，再逐步迭代，这和我们做其他系统是一样的。</p>
+      <p>第五，不要忽略安全——Agent能调用工具，意味着风险也被放大了，沙箱、权限控制、审计日志一个都不能少。</p>
+    </aside>
+  </section>
+
+  <!-- 10. Thanks & Q&A -->
+  <section class="slide center tc" data-title="Thanks">
+    <div class="cover-bg"></div>
+    <div>
+      <div class="mega">Q&A</div>
+      <h2 class="h2 mt-m">谢谢大家</h2>
+      <p class="lede mt-m" style="max-width:50ch;margin:0 auto;">
+        从 Prompt 到 Context，再到 Harness——这是一个从"告诉 AI 怎么做"到"告诉 AI 做什么"的范式转变。
+        而这其中，<span class="gradient-text" style="font-weight:700;">后端工程师能发挥巨大价值</span>。
+      </p>
+      <div class="row mt-l" style="justify-content:center;gap:24px">
+        <span class="pill pill-accent">按 S 查看演讲者备注</span>
+        <span class="pill">按 O 查看总览</span>
+      </div>
+    </div>
+    <aside class="notes">
+      <p>好，以上就是今天分享的全部内容。</p>
+      <p>简单总结一下：我们从为什么后端工程师开始关心Harness讲起，对比了Prompt/Context/Harness三阶段差异，介绍了Harness的5大组成，Runtime Substrate和知识层/状态层的位置，生产Harness和评测Harness的关系，给出了一个Python/TypeScript + Postgres/Docker的最小落地方案参考，最后澄清了5个最常见的误解。</p>
+      <p>核心观点是：Harness不是Prompt的新名字，而是把目标、环境、工具、知识、反馈回路、约束一起纳入工程控制面的完整框架——而这正是后端工程师的主战场。</p>
+      <p>现在欢迎大家提问！</p>
+    </aside>
+  </section>
+
+</div>
+<script data-inlined-from="assets/runtime.js">
+/* html-ppt :: runtime.js
+ * Keyboard-driven deck runtime. Zero dependencies.
+ *
+ * Features:
+ *   ← → / space / PgUp PgDn / Home End  navigation
+ *   F  fullscreen
+ *   S  presenter mode (opens a NEW WINDOW with current/next slide preview + notes + timer)
+ *       The original window stays as audience view, synced via BroadcastChannel.
+ *       Slide previews use CSS transform:scale() at design resolution for pixel-perfect layout.
+ *   N  quick notes overlay (bottom drawer)
+ *   O  slide overview grid
+ *   URL hash #/N  deep-link to slide N (1-based)
+ *   Progress bar auto-managed
+ */
+(function () {
+  'use strict';
+
+  function ready(fn){ if(document.readyState!='loading')fn(); else document.addEventListener('DOMContentLoaded',fn);}
+
+  /* ========== Parse URL for preview-only mode ==========
+   * When loaded as iframe.src = "index.html?preview=3", runtime enters a
+   * locked single-slide mode: only slide N is visible, no chrome, no keys,
+   * no hash updates. This is how the presenter window shows pixel-perfect
+   * previews — by loading the actual deck file in an iframe and telling it
+   * to display only a specific slide.
+   */
+  function getPreviewIdx() {
+    const m = /[?&]preview=(\d+)/.exec(location.search || '');
+    return m ? parseInt(m[1], 10) - 1 : -1;
+  }
+
+  ready(function () {
+    const deck = document.querySelector('.deck');
+    if (!deck) return;
+    const slides = Array.from(deck.querySelectorAll('.slide'));
+    if (!slides.length) return;
+
+    const previewOnlyIdx = getPreviewIdx();
+    const isPreviewMode = previewOnlyIdx >= 0 && previewOnlyIdx < slides.length;
+
+    /* ===== Preview-only mode: show one slide, hide everything else ===== */
+    if (isPreviewMode) {
+      function showSlide(i) {
+        slides.forEach((s, j) => {
+          const active = (j === i);
+          s.classList.toggle('is-active', active);
+          s.style.display = active ? '' : 'none';
+          if (active) {
+            s.style.opacity = '1';
+            s.style.transform = 'none';
+            s.style.pointerEvents = 'auto';
+          }
+        });
+      }
+      showSlide(previewOnlyIdx);
+      /* Hide chrome that the presenter shouldn't see in preview */
+      const hideSel = '.progress-bar, .notes-overlay, .overview, .notes, aside.notes, .speaker-notes';
+      document.querySelectorAll(hideSel).forEach(el => { el.style.display = 'none'; });
+      document.documentElement.setAttribute('data-preview', '1');
+      document.body.setAttribute('data-preview', '1');
+      /* Listen for postMessage from parent presenter window:
+       *  - preview-goto: switch visible slide WITHOUT reloading */
+      window.addEventListener('message', function(e) {
+        if (!e.data) return;
+        if (e.data.type === 'preview-goto') {
+          const n = parseInt(e.data.idx, 10);
+          if (n >= 0 && n < slides.length) showSlide(n);
+        }
+      });
+      /* Signal to parent that preview iframe is ready */
+      try { window.parent && window.parent.postMessage({ type: 'preview-ready' }, '*'); } catch(e) {}
+      return;
+    }
+
+    let idx = 0;
+    const total = slides.length;
+
+    /* ===== BroadcastChannel for presenter sync ===== */
+    const CHANNEL_NAME = 'html-ppt-presenter-' + location.pathname;
+    let bc;
+    try { bc = new BroadcastChannel(CHANNEL_NAME); } catch(e) { bc = null; }
+
+    // Are we running inside the presenter popup? (legacy flag, now unused)
+    const isPresenterWindow = false;
+
+    /* ===== progress bar ===== */
+    let bar = document.querySelector('.progress-bar');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.className = 'progress-bar';
+      bar.innerHTML = '<span></span>';
+      document.body.appendChild(bar);
+    }
+    const barFill = bar.querySelector('span');
+
+    /* ===== notes overlay (N key) ===== */
+    let notes = document.querySelector('.notes-overlay');
+    if (!notes) {
+      notes = document.createElement('div');
+      notes.className = 'notes-overlay';
+      document.body.appendChild(notes);
+    }
+
+    /* ===== overview grid (O key) ===== */
+    let overview = document.querySelector('.overview');
+    if (!overview) {
+      overview = document.createElement('div');
+      overview.className = 'overview';
+      slides.forEach((s, i) => {
+        const t = document.createElement('div');
+        t.className = 'thumb';
+        // Force 16:9 aspect ratio robustly
+        t.style.padding = '0 0 56.25% 0';
+        t.style.height = '0';
+        t.style.position = 'relative';
+        t.style.overflow = 'hidden';
+
+        const title = s.getAttribute('data-title') ||
+          (s.querySelector('h1,h2,h3')||{}).textContent || ('Slide '+(i+1));
+        
+        // Create a container for the mini-slide
+        const mini = document.createElement('div');
+        mini.className = 'mini-slide';
+        mini.style.position = 'absolute';
+        mini.style.top = '0';
+        mini.style.left = '0';
+        mini.style.width = '1920px';
+        mini.style.height = '1080px';
+        mini.style.transformOrigin = 'top left';
+        mini.style.pointerEvents = 'none';
+        mini.style.background = 'var(--bg)';
+        
+        // Clone the slide content
+        const clone = s.cloneNode(true);
+        clone.className = 'slide is-active'; // force active styles
+        clone.style.position = 'absolute';
+        clone.style.inset = '0';
+        clone.style.transform = 'none';
+        clone.style.opacity = '1';
+        clone.style.padding = '72px 96px'; // ensure padding is kept
+        
+        mini.appendChild(clone);
+        t.appendChild(mini);
+
+        // Add the number and title overlay
+        const overlay = document.createElement('div');
+        overlay.style.position = 'absolute';
+        overlay.style.inset = '0';
+        overlay.style.background = 'linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.8) 100%)';
+        overlay.style.color = '#fff';
+        overlay.style.zIndex = '10';
+        overlay.style.pointerEvents = 'none';
+        
+        const n = document.createElement('div');
+        n.className = 'n';
+        n.textContent = i + 1;
+        n.style.position = 'absolute';
+        n.style.top = '12px';
+        n.style.left = '16px';
+        n.style.fontWeight = '700';
+        n.style.fontSize = '16px';
+        n.style.color = '#fff';
+        n.style.textShadow = '0 1px 4px rgba(0,0,0,0.8)';
+        
+        const text = document.createElement('div');
+        text.className = 't';
+        text.textContent = title.trim().slice(0,80);
+        text.style.position = 'absolute';
+        text.style.bottom = '12px';
+        text.style.left = '16px';
+        text.style.right = '16px';
+        text.style.fontWeight = '600';
+        text.style.fontSize = '14px';
+        text.style.color = '#fff';
+        text.style.textShadow = '0 1px 4px rgba(0,0,0,0.8)';
+        
+        overlay.appendChild(n);
+        overlay.appendChild(text);
+        t.appendChild(overlay);
+
+        t.addEventListener('click', () => { go(i); toggleOverview(false); });
+        overview.appendChild(t);
+      });
+      document.body.appendChild(overview);
+    }
+
+    /* ===== navigation ===== */
+    function go(n, fromRemote){
+      n = Math.max(0, Math.min(total-1, n));
+      slides.forEach((s,i) => {
+        s.classList.toggle('is-active', i===n);
+        s.classList.toggle('is-prev', i<n);
+      });
+      idx = n;
+      barFill.style.width = ((n+1)/total*100)+'%';
+      const numEl = document.querySelector('.slide-number');
+      if (numEl) { numEl.setAttribute('data-current', n+1); numEl.setAttribute('data-total', total); }
+
+      // notes (bottom overlay)
+      const note = slides[n].querySelector('.notes, aside.notes, .speaker-notes');
+      notes.innerHTML = note ? note.innerHTML : '';
+
+      // hash
+      const hashTarget = '#/'+(n+1);
+      if (location.hash !== hashTarget && !isPresenterWindow) {
+        history.replaceState(null,'', hashTarget);
+      }
+
+      // re-trigger entry animations
+      slides[n].querySelectorAll('[data-anim]').forEach(el => {
+        const a = el.getAttribute('data-anim');
+        el.classList.remove('anim-'+a);
+        void el.offsetWidth;
+        el.classList.add('anim-'+a);
+      });
+
+      // counter-up
+      slides[n].querySelectorAll('.counter').forEach(el => {
+        const target = parseFloat(el.getAttribute('data-to')||el.textContent);
+        const dur = parseInt(el.getAttribute('data-dur')||'1200',10);
+        const start = performance.now();
+        const from = 0;
+        function tick(now){
+          const t = Math.min(1,(now-start)/dur);
+          const v = from + (target-from)*(1-Math.pow(1-t,3));
+          el.textContent = (target % 1 === 0) ? Math.round(v) : v.toFixed(1);
+          if (t<1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
+
+      // Broadcast to other window (audience ↔ presenter)
+      if (!fromRemote && bc) {
+        bc.postMessage({ type: 'go', idx: n });
+      }
+    }
+
+    /* ===== listen for remote navigation ===== */
+    if (bc) {
+      bc.onmessage = function(e) {
+        if (!e.data) return;
+        if (e.data.type === 'go' && typeof e.data.idx === 'number') {
+          go(e.data.idx, true);
+        }
+      };
+    }
+
+    function toggleNotes(force){ notes.classList.toggle('open', force!==undefined?force:!notes.classList.contains('open')); }
+    function toggleOverview(force){
+      const isOpen = force!==undefined ? force : !overview.classList.contains('open');
+      overview.classList.toggle('open', isOpen);
+      if (isOpen) {
+        requestAnimationFrame(() => {
+          const thumbs = overview.querySelectorAll('.thumb');
+          if (thumbs.length) {
+            const scale = thumbs[0].clientWidth / 1920;
+            overview.querySelectorAll('.mini-slide').forEach(m => {
+              m.style.transform = 'scale(' + scale + ')';
+            });
+          }
+        });
+      }
+    }
+
+    /* ========== PRESENTER MODE — Magnetic-card popup window ========== */
+    /* Opens a new window with 4 draggable, resizable cards:
+     *   CURRENT  — iframe(?preview=N)   pixel-perfect preview of current slide
+     *   NEXT     — iframe(?preview=N+1) pixel-perfect preview of next slide
+     *   SCRIPT   — large speaker notes (逐字稿)
+     *   TIMER    — elapsed timer + page counter + controls
+     * Cards remember position/size in localStorage.
+     * Two windows sync via BroadcastChannel.
+     */
+    let presenterWin = null;
+
+    function openPresenterWindow() {
+      if (presenterWin && !presenterWin.closed) {
+        presenterWin.focus();
+        return;
+      }
+
+      // Build absolute URL of THIS deck file (without hash/query)
+      const deckUrl = location.protocol + '//' + location.host + location.pathname;
+
+      // Collect slide titles + notes (HTML strings)
+      const slideMeta = slides.map((s, i) => {
+        const note = s.querySelector('.notes, aside.notes, .speaker-notes');
+        return {
+          title: s.getAttribute('data-title') ||
+            (s.querySelector('h1,h2,h3')||{}).textContent || ('Slide '+(i+1)),
+          notes: note ? note.innerHTML : ''
+        };
+      });
+
+      const presenterHTML = buildPresenterHTML(deckUrl, slideMeta, total, idx, CHANNEL_NAME);
+
+      presenterWin = window.open('', 'html-ppt-presenter', 'width=1280,height=820,menubar=no,toolbar=no');
+      if (!presenterWin) {
+        alert('请允许弹出窗口以使用演讲者视图');
+        return;
+      }
+      presenterWin.document.open();
+      presenterWin.document.write(presenterHTML);
+      presenterWin.document.close();
+    }
+
+    function buildPresenterHTML(deckUrl, slideMeta, total, startIdx, channelName) {
+      const metaJSON = JSON.stringify(slideMeta);
+      const deckUrlJSON = JSON.stringify(deckUrl);
+      const channelJSON = JSON.stringify(channelName);
+      const storageKey = 'html-ppt-presenter:' + location.pathname;
+
+      // Build the document as a single template string for clarity
+      return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Presenter View</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: #1a1d24;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(88,166,255,.04), transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(188,140,255,.04), transparent 50%);
+    color: #e6edf3;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+  }
+  /* Stage: positioned area where cards live */
+  #stage { position: absolute; inset: 0; overflow: hidden; }
+
+  /* Magnetic card */
+  .pcard {
+    position: absolute;
+    background: #0d1117;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.02);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    min-width: 180px; min-height: 100px;
+    transition: box-shadow .2s, border-color .2s;
+  }
+  .pcard.dragging { box-shadow: 0 16px 48px rgba(0,0,0,.6), 0 0 0 2px rgba(88,166,255,.5); border-color: #58a6ff; transition: none; z-index: 9999; }
+  .pcard.resizing { box-shadow: 0 16px 48px rgba(0,0,0,.6), 0 0 0 2px rgba(63,185,80,.5); border-color: #3fb950; transition: none; z-index: 9999; }
+  .pcard:hover { border-color: rgba(88,166,255,.3); }
+
+  /* Card header (drag handle) */
+  .pcard-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,.04);
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    cursor: move;
+    user-select: none;
+    flex-shrink: 0;
+  }
+  .pcard-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dot-color, #58a6ff); flex-shrink: 0; }
+  .pcard-title {
+    font-size: 11px; letter-spacing: .15em; text-transform: uppercase;
+    font-weight: 700; color: #8b949e; flex: 1;
+  }
+  .pcard-meta { font-size: 11px; color: #6e7681; }
+
+  /* Card body */
+  .pcard-body { flex: 1; position: relative; overflow: hidden; min-height: 0; }
+
+  /* Preview cards (CURRENT/NEXT) — iframe-based pixel-perfect render */
+  .pcard-preview .pcard-body { background: #000; }
+  .pcard-preview iframe {
+    position: absolute; top: 0; left: 0;
+    width: 1920px; height: 1080px;
+    border: none;
+    transform-origin: top left;
+    pointer-events: none;
+    background: transparent;
+  }
+  .pcard-preview .preview-end {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #484f58; font-size: 14px; letter-spacing: .12em;
+  }
+
+  /* Notes card */
+  .pcard-notes .pcard-body {
+    padding: 14px 18px;
+    overflow-y: auto;
+    font-size: 18px; line-height: 1.75;
+    color: #d0d7de;
+    font-family: "Noto Sans SC", -apple-system, sans-serif;
+  }
+  .pcard-notes .pcard-body p { margin: 0 0 .7em 0; }
+  .pcard-notes .pcard-body strong { color: #f0883e; }
+  .pcard-notes .pcard-body em { color: #58a6ff; font-style: normal; }
+  .pcard-notes .pcard-body code {
+    font-family: "SF Mono", monospace; font-size: .9em;
+    background: rgba(255,255,255,.08); padding: 1px 6px; border-radius: 4px;
+  }
+  .pcard-notes .empty { color: #484f58; font-style: italic; }
+
+  /* Timer card */
+  .pcard-timer .pcard-body {
+    display: flex; flex-direction: column; gap: 14px;
+    padding: 18px 20px; justify-content: center;
+  }
+  .timer-display {
+    font-family: "SF Mono", "JetBrains Mono", monospace;
+    font-size: 42px; font-weight: 700;
+    color: #3fb950;
+    letter-spacing: .04em;
+    line-height: 1;
+  }
+  .timer-row {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 14px; color: #8b949e;
+  }
+  .timer-row .label { font-size: 10px; letter-spacing: .15em; text-transform: uppercase; color: #6e7681; }
+  .timer-row .val { color: #e6edf3; font-weight: 600; font-family: "SF Mono", monospace; }
+  .timer-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+  .timer-btn {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.1);
+    color: #e6edf3;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .timer-btn:hover { background: rgba(88,166,255,.15); border-color: #58a6ff; }
+  .timer-btn:active { transform: translateY(1px); }
+
+  /* Resize handle */
+  .pcard-resize {
+    position: absolute; right: 0; bottom: 0;
+    width: 18px; height: 18px;
+    cursor: nwse-resize;
+    background: linear-gradient(135deg, transparent 50%, rgba(255,255,255,.25) 50%, rgba(255,255,255,.25) 60%, transparent 60%, transparent 70%, rgba(255,255,255,.25) 70%, rgba(255,255,255,.25) 80%, transparent 80%);
+    z-index: 5;
+  }
+  .pcard-resize:hover { background: linear-gradient(135deg, transparent 50%, #58a6ff 50%, #58a6ff 60%, transparent 60%, transparent 70%, #58a6ff 70%, #58a6ff 80%, transparent 80%); }
+
+  /* Bottom hint bar */
+  .hint-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,.6);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255,255,255,.08);
+    padding: 6px 16px;
+    font-size: 11px; color: #8b949e;
+    display: flex; gap: 18px; align-items: center;
+    z-index: 1000;
+  }
+  .hint-bar kbd {
+    background: rgba(255,255,255,.08);
+    padding: 1px 6px; border-radius: 3px;
+    font-family: "SF Mono", monospace;
+    font-size: 10px;
+    border: 1px solid rgba(255,255,255,.1);
+    color: #e6edf3;
+  }
+  .hint-bar .reset-layout {
+    margin-left: auto;
+    background: transparent; border: 1px solid rgba(255,255,255,.15);
+    color: #8b949e; padding: 3px 10px; border-radius: 4px;
+    font-size: 11px; cursor: pointer; font-family: inherit;
+  }
+  .hint-bar .reset-layout:hover { background: rgba(248,81,73,.15); border-color: #f85149; color: #f85149; }
+
+  body.is-dragging-card * { user-select: none !important; }
+  body.is-dragging-card iframe { pointer-events: none !important; }
+<\/style>
+</head>
+<body>
+
+<div id="stage">
+  <div class="pcard pcard-preview" id="card-cur" style="--dot-color:#58a6ff">
+    <div class="pcard-head" data-drag>
+      <span class="pcard-dot"></span>
+      <span class="pcard-title">CURRENT</span>
+      <span class="pcard-meta" id="cur-meta">—</span>
+    </div>
+    <div class="pcard-body"><iframe id="iframe-cur"></iframe></div>
+    <div class="pcard-resize" data-resize></div>
+  </div>
+
+  <div class="pcard pcard-preview" id="card-nxt" style="--dot-color:#bc8cff">
+    <div class="pcard-head" data-drag>
+      <span class="pcard-dot"></span>
+      <span class="pcard-title">NEXT</span>
+      <span class="pcard-meta" id="nxt-meta">—</span>
+    </div>
+    <div class="pcard-body"><iframe id="iframe-nxt"></iframe></div>
+    <div class="pcard-resize" data-resize></div>
+  </div>
+
+  <div class="pcard pcard-notes" id="card-notes" style="--dot-color:#f0883e">
+    <div class="pcard-head" data-drag>
+      <span class="pcard-dot"></span>
+      <span class="pcard-title">SPEAKER SCRIPT · 逐字稿</span>
+    </div>
+    <div class="pcard-body" id="notes-body"></div>
+    <div class="pcard-resize" data-resize></div>
+  </div>
+
+  <div class="pcard pcard-timer" id="card-timer" style="--dot-color:#3fb950">
+    <div class="pcard-head" data-drag>
+      <span class="pcard-dot"></span>
+      <span class="pcard-title">TIMER</span>
+    </div>
+    <div class="pcard-body">
+      <div class="timer-display" id="timer-display">00:00</div>
+      <div class="timer-row">
+        <span class="label">Slide</span>
+        <span class="val" id="timer-count">1 / ${total}</span>
+      </div>
+      <div class="timer-controls">
+        <button class="timer-btn" id="btn-prev">← Prev</button>
+        <button class="timer-btn" id="btn-next">Next →</button>
+        <button class="timer-btn" id="btn-reset">⏱ Reset</button>
+      </div>
+    </div>
+    <div class="pcard-resize" data-resize></div>
+  </div>
+</div>
+
+<div class="hint-bar">
+  <span><kbd>← →</kbd> 翻页</span>
+  <span><kbd>R</kbd> 重置计时</span>
+  <span><kbd>Esc</kbd> 关闭</span>
+  <span style="color:#6e7681">拖动卡片头部移动 · 拖动右下角调整大小</span>
+  <button class="reset-layout" id="reset-layout">重置布局</button>
+</div>
+
+<script>
+(function(){
+  var slideMeta = ${metaJSON};
+  var total = ${total};
+  var idx = ${startIdx};
+  var deckUrl = ${deckUrlJSON};
+  var STORAGE_KEY = ${JSON.stringify(storageKey)};
+  var bc;
+  try { bc = new BroadcastChannel(${channelJSON}); } catch(e) {}
+
+  var iframeCur = document.getElementById('iframe-cur');
+  var iframeNxt = document.getElementById('iframe-nxt');
+  var notesBody = document.getElementById('notes-body');
+  var curMeta = document.getElementById('cur-meta');
+  var nxtMeta = document.getElementById('nxt-meta');
+  var timerDisplay = document.getElementById('timer-display');
+  var timerCount = document.getElementById('timer-count');
+
+  /* ===== Default card layout ===== */
+  function defaultLayout() {
+    var w = window.innerWidth;
+    var h = window.innerHeight - 36; /* leave room for hint bar */
+    return {
+      'card-cur':   { x: 16,        y: 16,            w: Math.round(w*0.55) - 24, h: Math.round(h*0.62) - 16 },
+      'card-nxt':   { x: Math.round(w*0.55) + 8, y: 16, w: w - Math.round(w*0.55) - 24, h: Math.round(h*0.42) - 16 },
+      'card-notes': { x: Math.round(w*0.55) + 8, y: Math.round(h*0.42) + 8, w: w - Math.round(w*0.55) - 24, h: h - Math.round(h*0.42) - 16 },
+      'card-timer': { x: 16,        y: Math.round(h*0.62) + 8, w: Math.round(w*0.55) - 24, h: h - Math.round(h*0.62) - 16 }
+    };
+  }
+
+  /* ===== Apply / save / restore layout ===== */
+  function applyLayout(layout) {
+    Object.keys(layout).forEach(function(id){
+      var el = document.getElementById(id);
+      var l = layout[id];
+      if (el && l) {
+        el.style.left = l.x + 'px';
+        el.style.top = l.y + 'px';
+        el.style.width = l.w + 'px';
+        el.style.height = l.h + 'px';
+      }
+    });
+    rescaleAll();
+  }
+  function readLayout() {
+    try {
+      var saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch(e) {}
+    return defaultLayout();
+  }
+  function saveLayout() {
+    var layout = {};
+    ['card-cur','card-nxt','card-notes','card-timer'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) {
+        layout[id] = {
+          x: parseInt(el.style.left,10) || 0,
+          y: parseInt(el.style.top,10) || 0,
+          w: parseInt(el.style.width,10) || 300,
+          h: parseInt(el.style.height,10) || 200
+        };
+      }
+    });
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(layout)); } catch(e) {}
+  }
+
+  /* ===== iframe rescale to fit card body ===== */
+  function rescaleIframe(iframe) {
+    if (!iframe || iframe.style.display === 'none') return;
+    var body = iframe.parentElement;
+    var cw = body.clientWidth, ch = body.clientHeight;
+    if (!cw || !ch) return;
+    var s = Math.min(cw / 1920, ch / 1080);
+    iframe.style.transform = 'scale(' + s + ')';
+    /* Center the scaled iframe in the body */
+    var sw = 1920 * s, sh = 1080 * s;
+    iframe.style.left = Math.max(0, (cw - sw) / 2) + 'px';
+    iframe.style.top = Math.max(0, (ch - sh) / 2) + 'px';
+  }
+  function rescaleAll() {
+    rescaleIframe(iframeCur);
+    rescaleIframe(iframeNxt);
+  }
+  window.addEventListener('resize', rescaleAll);
+
+  /* ===== Drag (move card by header) ===== */
+  document.querySelectorAll('[data-drag]').forEach(function(handle){
+    handle.addEventListener('mousedown', function(e){
+      if (e.button !== 0) return;
+      var card = handle.closest('.pcard');
+      if (!card) return;
+      e.preventDefault();
+      card.classList.add('dragging');
+      document.body.classList.add('is-dragging-card');
+      var startX = e.clientX, startY = e.clientY;
+      var startL = parseInt(card.style.left,10) || 0;
+      var startT = parseInt(card.style.top,10)  || 0;
+      function onMove(ev){
+        var nx = Math.max(0, Math.min(window.innerWidth - 100, startL + ev.clientX - startX));
+        var ny = Math.max(0, Math.min(window.innerHeight - 50, startT + ev.clientY - startY));
+        card.style.left = nx + 'px';
+        card.style.top = ny + 'px';
+      }
+      function onUp(){
+        card.classList.remove('dragging');
+        document.body.classList.remove('is-dragging-card');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        saveLayout();
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  });
+
+  /* ===== Resize (drag bottom-right corner) ===== */
+  document.querySelectorAll('[data-resize]').forEach(function(handle){
+    handle.addEventListener('mousedown', function(e){
+      if (e.button !== 0) return;
+      var card = handle.closest('.pcard');
+      if (!card) return;
+      e.preventDefault(); e.stopPropagation();
+      card.classList.add('resizing');
+      document.body.classList.add('is-dragging-card');
+      var startX = e.clientX, startY = e.clientY;
+      var startW = parseInt(card.style.width,10)  || card.offsetWidth;
+      var startH = parseInt(card.style.height,10) || card.offsetHeight;
+      function onMove(ev){
+        var nw = Math.max(180, startW + ev.clientX - startX);
+        var nh = Math.max(100, startH + ev.clientY - startY);
+        card.style.width = nw + 'px';
+        card.style.height = nh + 'px';
+        if (card.querySelector('iframe')) rescaleIframe(card.querySelector('iframe'));
+      }
+      function onUp(){
+        card.classList.remove('resizing');
+        document.body.classList.remove('is-dragging-card');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        rescaleAll();
+        saveLayout();
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  });
+
+  /* ===== Preview iframe ready tracking =====
+   * Each iframe loads the deck ONCE with ?preview=1 on init. Subsequent
+   * slide changes are sent via postMessage('preview-goto') so the iframe
+   * just toggles visibility of a different .slide — no reload, no flicker.
+   */
+  var iframeReady = { cur: false, nxt: false };
+  window.addEventListener('message', function(e) {
+    if (!e.data || e.data.type !== 'preview-ready') return;
+    var iframe = null;
+    if (e.source === iframeCur.contentWindow) {
+      iframeReady.cur = true;
+      iframe = iframeCur;
+      postPreviewGoto(iframeCur, idx);
+    } else if (e.source === iframeNxt.contentWindow) {
+      iframeReady.nxt = true;
+      iframe = iframeNxt;
+      postPreviewGoto(iframeNxt, idx + 1 < total ? idx + 1 : idx);
+    }
+    if (iframe) rescaleIframe(iframe);
+  });
+
+  function postPreviewGoto(iframe, n) {
+    try {
+      iframe.contentWindow.postMessage({ type: 'preview-goto', idx: n }, '*');
+    } catch(e) {}
+  }
+
+  /* ===== Update content =====
+   * Smooth (no-reload) navigation: send postMessage to iframes instead of
+   * resetting src. Iframes stay loaded, just switch visible .slide.
+   */
+  function update(n) {
+    n = Math.max(0, Math.min(total - 1, n));
+    idx = n;
+
+    /* Current preview — postMessage (smooth) */
+    if (iframeReady.cur) postPreviewGoto(iframeCur, n);
+    curMeta.textContent = (n + 1) + '/' + total;
+
+    /* Next preview */
+    if (n + 1 < total) {
+      iframeNxt.style.display = '';
+      var endEl = document.querySelector('#card-nxt .preview-end');
+      if (endEl) endEl.remove();
+      if (iframeReady.nxt) postPreviewGoto(iframeNxt, n + 1);
+      nxtMeta.textContent = (n + 2) + '/' + total;
+    } else {
+      iframeNxt.style.display = 'none';
+      var body = document.querySelector('#card-nxt .pcard-body');
+      if (body && !body.querySelector('.preview-end')) {
+        var end = document.createElement('div');
+        end.className = 'preview-end';
+        end.textContent = '— END OF DECK —';
+        body.appendChild(end);
+      }
+      nxtMeta.textContent = 'END';
+    }
+
+    /* Notes */
+    var note = slideMeta[n].notes;
+    notesBody.innerHTML = note || '<span class="empty">（这一页还没有逐字稿）</span>';
+
+    /* Timer count */
+    timerCount.textContent = (n + 1) + ' / ' + total;
+  }
+
+  /* ===== Timer ===== */
+  var tStart = Date.now();
+  setInterval(function(){
+    var s = Math.floor((Date.now() - tStart) / 1000);
+    var mm = String(Math.floor(s/60)).padStart(2,'0');
+    var ss = String(s%60).padStart(2,'0');
+    timerDisplay.textContent = mm + ':' + ss;
+  }, 1000);
+  function resetTimer(){ tStart = Date.now(); timerDisplay.textContent = '00:00'; }
+
+  /* ===== BroadcastChannel sync ===== */
+  if (bc) {
+    bc.onmessage = function(e){
+      if (!e.data) return;
+      if (e.data.type === 'go') update(e.data.idx);
+    };
+  }
+  function go(n) {
+    update(n);
+    if (bc) bc.postMessage({ type: 'go', idx: idx });
+  }
+
+  /* ===== Buttons ===== */
+  document.getElementById('btn-prev').addEventListener('click', function(){ go(idx - 1); });
+  document.getElementById('btn-next').addEventListener('click', function(){ go(idx + 1); });
+  document.getElementById('btn-reset').addEventListener('click', resetTimer);
+  document.getElementById('reset-layout').addEventListener('click', function(){
+    if (confirm('恢复默认卡片布局？')) {
+      try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+      applyLayout(defaultLayout());
+    }
+  });
+
+  /* ===== Keyboard ===== */
+  document.addEventListener('keydown', function(e){
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    switch(e.key) {
+      case 'ArrowRight': case ' ': case 'PageDown': go(idx + 1); e.preventDefault(); break;
+      case 'ArrowLeft':  case 'PageUp':   go(idx - 1); e.preventDefault(); break;
+      case 'Home': go(0); break;
+      case 'End':  go(total - 1); break;
+      case 'r': case 'R': resetTimer(); break;
+      case 'Escape': window.close(); break;
+    }
+  });
+
+  /* ===== Iframe load → rescale (catches initial size) ===== */
+  iframeCur.addEventListener('load', function(){ rescaleIframe(iframeCur); });
+  iframeNxt.addEventListener('load', function(){ rescaleIframe(iframeNxt); });
+
+  /* ===== Init =====
+   * Load each iframe ONCE with the deck file. After they post
+   * 'preview-ready', all subsequent navigation is via postMessage
+   * (smooth, no reload, no flicker).
+   */
+  applyLayout(readLayout());
+  iframeCur.src = deckUrl + '?preview=' + (idx + 1);
+  if (idx + 1 < total) iframeNxt.src = deckUrl + '?preview=' + (idx + 2);
+  /* Initialize notes/timer/count without touching iframes */
+  notesBody.innerHTML = slideMeta[idx].notes || '<span class="empty">（这一页还没有逐字稿）</span>';
+  curMeta.textContent = (idx + 1) + '/' + total;
+  nxtMeta.textContent = (idx + 2) + '/' + total;
+  timerCount.textContent = (idx + 1) + ' / ' + total;
+})();
+</` + `script>
+</body></html>`;
+    }
+
+    function fullscreen(){ const el=document.documentElement;
+      if (!document.fullscreenElement) el.requestFullscreen&&el.requestFullscreen();
+      else document.exitFullscreen&&document.exitFullscreen();
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.metaKey||e.ctrlKey||e.altKey) return;
+      switch (e.key) {
+        case 'ArrowRight': case ' ': case 'PageDown': case 'Enter': go(idx+1); e.preventDefault(); break;
+        case 'ArrowLeft': case 'PageUp': case 'Backspace': go(idx-1); e.preventDefault(); break;
+        case 'Home': go(0); break;
+        case 'End': go(total-1); break;
+        case 'f': case 'F': fullscreen(); break;
+        case 's': case 'S': openPresenterWindow(); break;
+        case 'n': case 'N': toggleNotes(); break;
+        case 'o': case 'O': toggleOverview(); break;
+        case 'Escape': toggleOverview(false); toggleNotes(false); break;
+      }
+    });
+
+    // hash deep-link
+    function fromHash(){
+      const m = /^#\/(\d+)/.exec(location.hash||'');
+      if (m) go(Math.max(0, parseInt(m[1],10)-1));
+    }
+    window.addEventListener('hashchange', fromHash);
+    fromHash();
+    go(idx);
+  });
+})();
+
+</script>
+</body></html>

@@ -1,0 +1,23 @@
+/* theme: indigo-porcelain — 靛蓝瓷 / selected Aesthetic Deck style */
+:root{
+  --bg:#0a1f3d;--bg-soft:#102b4f;--surface:#f1f3f5;--surface-2:#e4e8ec;
+  --border:rgba(198,214,255,.22);--border-strong:rgba(198,214,255,.42);
+  --text-1:#f1f3f5;--text-2:#c6d6ff;--text-3:#8aa6d8;
+  --accent:#5c7eff;--accent-2:#40c6f2;--accent-3:#9abcff;
+  --good:#40c6f2;--warn:#e0b86a;--bad:#e56b7f;
+  --grad:linear-gradient(135deg,#5c7eff,#40c6f2 58%,#9abcff);
+  --grad-soft:linear-gradient(135deg,rgba(92,126,255,.20),rgba(64,198,242,.18),rgba(154,188,255,.16));
+  --radius:18px;--radius-sm:12px;--radius-lg:28px;
+  --shadow:0 18px 45px rgba(0,0,0,.26);
+  --shadow-lg:0 32px 80px rgba(0,0,0,.34);
+  --font-sans:'Inter','Noto Sans SC',sans-serif;
+  --font-serif:'Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-display:var(--font-serif);
+}
+.slide{background:
+  radial-gradient(circle at 78% 18%,rgba(64,198,242,.22),transparent 30%),
+  radial-gradient(circle at 22% 80%,rgba(92,126,255,.20),transparent 34%),
+  var(--bg);
+}
+.card,.panel,.quote{background:rgba(241,243,245,.08);backdrop-filter:blur(18px);border-color:rgba(198,214,255,.18)}
+.kicker,.eyebrow{color:var(--accent-2)}
