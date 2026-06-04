@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📊 投票结果</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/grid.css">
+  <style>html, body { overflow: auto; height: auto; }</style>
+</head>
+<body class="results-page">
+
+  <header class="topbar">
+    <div class="topbar-title">📊 投票 <span>结果</span></div>
+    <div class="topbar-actions">
+      <button class="btn-export" id="exportBtn" type="button">⬇️ 导出 CSV</button>
+      <a href="index.html" class="btn-back">← 返回投票</a>
+    </div>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-label">总参与人数</span>
+      <span class="stat-value" id="totalParticipants">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">总投票次数</span>
+      <span class="stat-value" id="totalVotes">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">有票风格数</span>
+      <span class="stat-value" id="activeStyles">—</span>
+    </div>
+  </div>
+
+  <div class="results-main">
+    <div class="results-title">按票数从高到低排列 · 点击卡片跳回投票预览</div>
+    <div class="results-grid" id="resultsGrid"></div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <!-- App -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/styleMapping.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/results.js"></script>
+</body>
+</html>

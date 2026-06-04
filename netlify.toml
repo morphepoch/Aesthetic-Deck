@@ -1,0 +1,17 @@
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/ppt-styles/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"

@@ -1,0 +1,211 @@
+/* ─── Results page ─── */
+
+.results-page {
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.stats-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  gap: 32px;
+  flex-shrink: 0;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent-light);
+}
+
+.results-main {
+  flex: 1;
+  padding: 24px;
+}
+
+.results-title {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+/* ─── 4列×3行网格 ─── */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+/* ─── 卡片 ─── */
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.result-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(108, 99, 255, 0.18);
+}
+
+.result-card.zero-votes { opacity: 0.55; }
+.result-card.zero-votes:hover { opacity: 1; }
+
+/* ─── iframe 缩略图 ─── */
+.iframe-thumb-wrapper {
+  width: 100%;
+  /* 高度由 JS 动态计算（保持 16:9）*/
+  overflow: hidden;
+  position: relative;
+  background: #0a0b10;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.card-iframe-thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1280px;
+  height: 720px;
+  transform-origin: top left;
+  pointer-events: none;
+  border: none;
+  display: block;
+}
+
+/* 排名徽章浮在缩略图上 */
+.iframe-thumb-wrapper .rank {
+  position: absolute;
+  top: 7px;
+  left: 8px;
+  z-index: 2;
+  font-size: 20px;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6));
+}
+
+/* ─── 卡片底部 ─── */
+.card-footer {
+  padding: 10px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.card-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vote-count {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.vote-count .heart { font-size: 13px; }
+
+.vote-count .count-num {
+  color: var(--like-color);
+  font-size: 15px;
+}
+
+.zero-votes .vote-count .count-num { color: var(--text-secondary); }
+
+.card-hint {
+  font-size: 11px;
+  color: var(--text-secondary);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.result-card:hover .card-hint { opacity: 1; color: var(--accent-light); }
+
+/* ─── TopBar 按钮 ─── */
+.btn-back {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-back:hover { border-color: var(--accent); color: var(--accent-light); }
+
+.btn-export {
+  background: var(--surface2);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-export:hover {
+  border-color: #4ade80;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.08);
+}
+
+/* ─── 响应式 ─── */
+@media (max-width: 900px) {
+  .results-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .results-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .results-main { padding: 14px; }
+  .stats-bar { padding: 10px 14px; gap: 18px; flex-wrap: wrap; }
+}

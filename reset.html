@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>重置投票数据</title>
+  <style>
+    body { background: #0f1117; color: #e8e9f0; font-family: sans-serif;
+           display: flex; align-items: center; justify-content: center;
+           height: 100vh; margin: 0; flex-direction: column; gap: 16px; }
+    .status { font-size: 18px; }
+    .sub    { font-size: 13px; color: #8b8fa8; }
+  </style>
+</head>
+<body>
+  <div class="status" id="status">⏳ 正在重置…</div>
+  <div class="sub"   id="sub">连接 Firebase 中</div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script>
+    async function run() {
+      const st  = document.getElementById('status');
+      const sub = document.getElementById('sub');
+      try {
+        firebase.initializeApp(FIREBASE_CONFIG);
+        const db = firebase.database();
+        sub.textContent = '清空 Firebase 数据中…';
+        await db.ref('/').set({
+          votes:        {},
+          devices:      {},
+          interactions: {},
+          stats:        { totalVisitors: 0 },
+        });
+        // 清本地缓存
+        localStorage.removeItem('user_liked_styles');
+        localStorage.removeItem('all_votes');
+        localStorage.removeItem('voter_devices');
+
+        st.textContent  = '✅ 重置完成';
+        sub.textContent = '3 秒后跳转到投票页…';
+        setTimeout(() => { window.location.href = 'index.html'; }, 3000);
+      } catch (e) {
+        st.textContent  = '❌ 重置失败';
+        sub.textContent = e.message;
+      }
+    }
+    run();
+  </script>
+</body>
+</html>

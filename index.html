@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎨 PPT风格投票系统</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-title">🎨 PPT <span>风格投票</span></div>
+    <a href="results.html" class="btn-results" id="resultsBtn">📊 查看结果</a>
+  </header>
+
+  <div class="layout">
+
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-header-top">
+          风格列表 · <span id="styleCount"></span> 个
+          <span class="admin-badge" id="adminBadge" style="display:none">🔓 管理员</span>
+        </div>
+        <div class="search-wrap">
+          <input type="text" id="searchInput" class="search-input"
+                 placeholder="搜索风格名称…" autocomplete="off" />
+          <span class="search-icon">🔍</span>
+          <button class="search-clear" id="searchClear" style="display:none">✕</button>
+        </div>
+      </div>
+      <ul class="style-list" id="styleList"></ul>
+      <div class="sidebar-empty" id="sidebarEmpty" style="display:none">没有匹配的风格</div>
+
+      <!-- 键盘操作说明 -->
+      <div class="kbd-hint">
+        <div class="kbd-row"><kbd>↑</kbd><kbd>↓</kbd> 切换风格</div>
+        <div class="kbd-row"><kbd>←</kbd><kbd>→</kbd> <kbd>Space</kbd> PPT 翻页</div>
+        <div class="kbd-row"><kbd>Enter</kbd> 点赞 / 取消</div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="preview-area">
+        <div class="preview-placeholder" id="previewPlaceholder">
+          <div class="placeholder-icon">🖼️</div>
+          <p>← 从左侧选择一个风格开始预览</p>
+        </div>
+        <div class="iframe-loader" id="iframeLoader" style="display:none">
+          <div class="spinner"></div>
+          <span>加载中…</span>
+        </div>
+        <iframe
+          id="previewFrame"
+          src="about:blank"
+          sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals"
+          title="PPT风格预览"
+          allowfullscreen
+        ></iframe>
+      </div>
+
+      <div class="vote-bar" id="voteArea">
+        <div class="vote-bar-left">
+          <span class="vote-bar-label">当前预览</span>
+          <div class="vote-bar-name-row">
+            <span class="vote-bar-style" id="currentStyleName">—</span>
+            <span class="admin-vote-count" id="adminVoteCount" style="display:none"></span>
+          </div>
+        </div>
+        <button class="like-btn" id="likeBtn" type="button">
+          <span class="heart-icon">🤍</span>
+          <span class="btn-text">点赞</span>
+        </button>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <!-- App -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/styleMapping.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harness Engineering · 从 Prompt / Context 到 Agent Runtime 的工程转向</title>
+
+<style id="single-file-fonts">
+  :root{
+    --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace !important;
+    --serif-en:Georgia,"Times New Roman",Times,serif !important;
+    --serif-body-en:Georgia,"Times New Roman",Times,serif !important;
+    --serif-zh:"Songti SC","STSong","Noto Serif CJK SC","Source Han Serif SC",serif !important;
+    --sans-zh:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC","Source Han Sans SC",sans-serif !important;
+  }
+</style>
+<style>
+  :root{
+    --ink:#0a1f3d;
+    --ink-rgb:10,31,61;
+    --paper:#f1f3f5;
+    --paper-rgb:241,243,245;
+    --paper-tint:#e4e8ec;
+    --ink-tint:#152a4a;
+    --flow-light-1:128,154,255;
+    --flow-light-2:86,176,238;
+    --flow-light-3:198,214,255;
+    --flow-dark-1:92,126,255;
+    --flow-dark-2:64,182,232;
+    --flow-dark-3:130,168,255;
+    --flow-hero-light-1:116,146,255;
+    --flow-hero-light-2:72,186,248;
+    --flow-hero-light-3:212,226,255;
+    --flow-hero-dark-1:96,134,255;
+    --flow-hero-dark-2:64,198,242;
+    --flow-hero-dark-3:154,188,255;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+    --serif-en:"Playfair Display","Source Serif 4",Georgia,serif;
+    --serif-zh:"Noto Serif SC",source-han-serif-sc,serif;
+    --sans-zh:"Noto Sans SC",source-han-sans-sc,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--ink);color:var(--paper);font-family:var(--sans-zh);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  canvas.bg{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;display:block;transition:opacity 1.2s ease}
+  canvas#bg-light{opacity:0}
+  canvas#bg-dark{opacity:1}
+  body.light-bg canvas#bg-light{opacity:1}
+  body.light-bg canvas#bg-dark{opacity:0}
+  #deck{position:fixed;inset:0;width:10000vw;height:100vh;display:flex;flex-wrap:nowrap;transition:transform .9s cubic-bezier(.77,0,.175,1);z-index:10;will-change:transform}
+  .slide{width:100vw;height:100vh;flex:0 0 100vw;position:relative;padding:6vh 6vw 10vh 6vw;display:flex;flex-direction:column;overflow:hidden}
+  .slide > *{position:relative;z-index:1}
+  .slide.light{color:var(--ink);background:transparent}
+  .slide.dark{color:var(--paper);background:transparent}
+  .slide::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;transition:background .7s ease}
+  .slide.light::before{background:radial-gradient(88% 88% at 20% 20%,rgba(var(--flow-light-1),.08),transparent 62%),radial-gradient(84% 84% at 80% 75%,rgba(var(--flow-light-2),.06),transparent 58%),radial-gradient(96% 96% at 50% 35%,rgba(var(--flow-light-3),.045),transparent 66%),rgba(var(--paper-rgb),.76);background-size:150% 150%,145% 145%,165% 165%,auto;animation:fallbackFlowLight 22s ease-in-out infinite;backdrop-filter:blur(2px)}
+  .slide.dark::before{background:radial-gradient(92% 92% at 22% 24%,rgba(var(--flow-dark-1),.085),transparent 60%),radial-gradient(88% 88% at 78% 78%,rgba(var(--flow-dark-2),.06),transparent 56%),radial-gradient(100% 100% at 50% 40%,rgba(var(--flow-dark-3),.045),transparent 66%),rgba(var(--ink-rgb),.74);background-size:152% 152%,148% 148%,168% 168%,auto;animation:fallbackFlowDark 21s ease-in-out infinite;backdrop-filter:blur(2px)}
+  .slide.hero.light::before{background:radial-gradient(80% 80% at 18% 20%,rgba(var(--flow-hero-light-1),.05),transparent 56%),radial-gradient(76% 76% at 82% 80%,rgba(var(--flow-hero-light-2),.035),transparent 52%),radial-gradient(86% 86% at 50% 36%,rgba(var(--flow-hero-light-3),.02),transparent 60%),rgba(var(--paper-rgb),.50);background-size:128% 128%,124% 124%,138% 138%,auto;animation:fallbackFlowLight 28s ease-in-out infinite;backdrop-filter:none}
+  .slide.hero.dark::before{background:radial-gradient(82% 82% at 20% 20%,rgba(var(--flow-hero-dark-1),.06),transparent 56%),radial-gradient(78% 78% at 80% 82%,rgba(var(--flow-hero-dark-2),.04),transparent 53%),radial-gradient(88% 88% at 50% 34%,rgba(var(--flow-hero-dark-3),.022),transparent 60%),rgba(var(--ink-rgb),.48);background-size:130% 130%,126% 126%,142% 142%,auto;animation:fallbackFlowDark 27s ease-in-out infinite;backdrop-filter:none}
+  .slide.hero::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none}
+  .slide.hero.light::after{background:linear-gradient(180deg,rgba(var(--paper-rgb),.16) 0%,rgba(var(--paper-rgb),0) 12%,rgba(var(--paper-rgb),0) 88%,rgba(var(--paper-rgb),.16) 100%)}
+  .slide.hero.dark::after{background:linear-gradient(180deg,rgba(var(--ink-rgb),.18) 0%,rgba(var(--ink-rgb),0) 12%,rgba(var(--ink-rgb),0) 88%,rgba(var(--ink-rgb),.18) 100%)}
+  .chrome{display:flex;justify-content:space-between;align-items:flex-start;font-family:var(--mono);font-size:max(11px,.78vw);letter-spacing:.2em;text-transform:uppercase;opacity:.62}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--mono);font-size:max(11px,.78vw);letter-spacing:.18em;text-transform:uppercase;opacity:.5}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.3em;text-transform:uppercase;opacity:.6;margin-bottom:2.6vh}
+  .h-hero{font-family:var(--serif-zh);font-weight:900;font-size:10vw;line-height:.96;letter-spacing:-.02em}
+  .h-xl{font-family:var(--serif-zh);font-weight:700;font-size:6.2vw;line-height:1.08;letter-spacing:-.01em}
+  .h-sub{font-family:var(--serif-zh);font-weight:500;font-size:3.1vw;line-height:1.25;letter-spacing:0;opacity:.7}
+  .h-md{font-family:var(--serif-zh);font-weight:600;font-size:2.3vw;line-height:1.3}
+  .lead{font-family:var(--serif-zh);font-weight:400;font-size:1.75vw;line-height:1.5;opacity:.86}
+  .meta-row{display:flex;gap:1.2em;align-items:baseline;flex-wrap:wrap;font-family:var(--mono);font-size:max(12px,.92vw);letter-spacing:.16em;text-transform:uppercase;opacity:.6}
+  .frame{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:4vw;flex:1;align-content:center}
+  .callout{padding:2.5vh 2.2vw;border-left:3px solid currentColor;position:relative;font-family:var(--serif-zh);font-size:max(14px,1.15vw);line-height:1.55;opacity:.92}
+  .slide.light .callout{background:rgba(var(--ink-rgb),.04)}
+  .slide.dark .callout{background:rgba(var(--paper-rgb),.05)}
+  .callout .cite{display:block;margin-top:1.4vh;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.55}
+  .callout .q-big{font-family:var(--serif-zh);font-weight:600;font-size:max(15px,1.4vw);line-height:1.42}
+  .callout-src{display:block;margin-top:1.4vh;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.55}
+  .pillar{display:flex;flex-direction:column;gap:1.6vh;padding-top:1.4vh;border-top:1px solid rgba(127,127,127,.3)}
+  .pillar .ic{font-family:var(--serif-en);font-style:italic;font-size:1.8vw;opacity:.35;font-weight:400;margin-bottom:.2vh}
+  .pillar .t{font-family:var(--serif-zh);font-weight:700;font-size:1.9vw;line-height:1.15}
+  .pillar .d{font-family:var(--sans-zh);font-weight:400;font-size:max(13px,.98vw);opacity:.72;line-height:1.6}
+  .rowline{display:grid;grid-template-columns:1fr 2fr 2fr 2fr;gap:1.2vw;padding:1.6vh 0;border-top:1px solid rgba(127,127,127,.22);align-items:start}
+  .rowline:last-child{border-bottom:1px solid rgba(127,127,127,.22)}
+  .rowline .k{font-family:var(--mono);font-size:max(10px,.78vw);letter-spacing:.18em;text-transform:uppercase;opacity:.52;padding-top:.2vh}
+  .rowline .v{font-family:var(--sans-zh);font-weight:400;font-size:max(13px,1.0vw);opacity:.82;line-height:1.5}
+  .rowline .v.accent{font-family:var(--serif-zh);font-weight:600;opacity:1;font-size:max(13px,1.05vw)}
+  .pipeline-section{margin-top:3.5vh;padding-top:2.5vh;border-top:1px dashed rgba(127,127,127,.28)}
+  .pipeline-section:first-of-type{border-top:0;padding-top:0;margin-top:2.5vh}
+  .pipeline-label{font-family:var(--mono);font-size:max(11px,.82vw);letter-spacing:.22em;text-transform:uppercase;opacity:.58;margin-bottom:2vh}
+  .pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:1.1vw}
+  .pipeline[data-cols="4"]{grid-template-columns:repeat(4,1fr)}
+  .step{display:flex;flex-direction:column;gap:.7vh;padding-top:1.3vh;border-top:1px solid rgba(127,127,127,.32)}
+  .step-nb{font-family:var(--serif-en);font-style:italic;font-weight:500;font-size:1.05vw;opacity:.4}
+  .step-title{font-family:var(--sans-zh);font-weight:700;font-size:1.45vw;letter-spacing:.01em;line-height:1.2}
+  .step-desc{font-family:var(--sans-zh);font-weight:400;font-size:max(11px,.9vw);line-height:1.45;opacity:.68}
+  .resource-card{padding:1.8vh 1.6vw;border:1px solid rgba(127,127,127,.2);border-radius:5px;display:flex;flex-direction:column;gap:.9vh}
+  .slide.light .resource-card{background:rgba(var(--ink-rgb),.03)}
+  .slide.dark .resource-card{background:rgba(var(--paper-rgb),.04)}
+  .rc-label{font-family:var(--mono);font-size:max(10px,.72vw);letter-spacing:.22em;text-transform:uppercase;opacity:.5}
+  .rc-title{font-family:var(--serif-zh);font-weight:700;font-size:max(14px,1.18vw);line-height:1.2}
+  .rc-meta{font-family:var(--sans-zh);font-size:max(11px,.88vw);opacity:.68;line-height:1.5}
+  .rc-tag{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;opacity:.48;margin-top:.3vh;display:inline-block;padding:3px 8px;border:1px solid currentColor}
+  .section-label{font-family:var(--serif-zh);font-weight:700;font-size:1.35vw;opacity:.85;margin-bottom:1.4vh;padding-bottom:1vh;border-bottom:1px solid rgba(127,127,127,.25)}
+  .code-block{font-family:var(--mono);font-size:max(11px,.85vw);line-height:1.8;background:rgba(var(--paper-rgb),.06);border:1px solid rgba(var(--paper-rgb),.1);border-radius:5px;padding:2.2vh 1.8vw;white-space:pre}
+  .slide.light .code-block{background:rgba(var(--ink-rgb),.05);border-color:rgba(var(--ink-rgb),.1)}
+  .code-block .cm{opacity:.4}
+  .code-block .kw{opacity:.75;font-weight:500}
+  .tech-pill{font-family:var(--mono);font-size:max(10px,.78vw);letter-spacing:.16em;text-transform:uppercase;padding:7px 14px;border:1px solid rgba(127,127,127,.32);border-radius:3px;white-space:nowrap}
+  #nav{position:fixed;left:50%;bottom:2.6vh;transform:translateX(-50%);z-index:30;display:flex;gap:10px;padding:8px 14px;border-radius:999px;background:rgba(0,0,0,.18);backdrop-filter:blur(10px)}
+  #nav .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;transition:all .3s ease;border:0;padding:0}
+  #nav .dot:hover{background:rgba(255,255,255,.5);transform:scale(1.15)}
+  #nav .dot.active{background:rgba(255,255,255,.95);width:22px;border-radius:999px}
+  body.light-bg #nav{background:rgba(255,255,255,.25)}
+  body.light-bg #nav .dot{background:rgba(var(--ink-rgb),.25)}
+  body.light-bg #nav .dot.active{background:rgba(var(--ink-rgb),.9)}
+  #hint{position:fixed;bottom:3vh;right:3vw;z-index:30;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.38;color:#aaa}
+  @keyframes fallbackFlowDark{0%{background-position:0% 0%,100% 0%,50% 100%}50%{background-position:100% 100%,0% 100%,50% 0%}100%{background-position:0% 0%,100% 0%,50% 100%}}
+  @keyframes fallbackFlowLight{0%{background-position:0% 50%,100% 50%,50% 0%}50%{background-position:100% 50%,0% 50%,50% 100%}100%{background-position:0% 50%,100% 50%,50% 0%}}
+  body.webgl-off canvas.bg{display:none}
+  [data-anim]{opacity:1}
+  body.motion-ready [data-anim]{opacity:0}
+  body.motion-ready [data-anim="left"]{transform:translateX(-24px)}
+  body.motion-ready [data-anim="right"]{transform:translateX(24px)}
+  body.motion-ready [data-anim="line"]{opacity:0;transform:translateY(10px)}
+  body.motion-ready [data-animate="pipeline"] [data-anim]{opacity:.15}
+  @media(max-width:900px){.h-hero{font-size:14vw}.h-xl{font-size:9vw}.pipeline,.grid-3{grid-template-columns:repeat(2,1fr)}.rowline{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<canvas id="bg-dark" class="bg"></canvas>
+<canvas id="bg-light" class="bg"></canvas>
+<div id="hint">← → 翻页 &nbsp;·&nbsp; ESC 索引</div>
+
+<div id="deck">
+
+<!-- ======== SLIDE 1 封面 hero dark ======== -->
+<section class="slide hero dark">
+  <div class="chrome">
+    <div>Harness Engineering &nbsp;·&nbsp; 内部技术分享</div>
+    <div>2026.05</div>
+  </div>
+  <div class="frame" style="display:grid;gap:3.2vh;align-content:center;min-height:80vh">
+    <div class="kicker" data-anim>Backend &rarr; Agent Infra &nbsp;·&nbsp; 15 min</div>
+    <h1 class="h-hero" data-anim style="font-size:9.2vw;line-height:.92">Harness<br>Engineering</h1>
+    <h2 class="h-sub" data-anim style="max-width:64vw;opacity:.74">从 Prompt / Context 到 Agent Runtime 的工程转向</h2>
+    <p class="lead" style="max-width:54vw;margin-top:.5vh" data-anim>
+      后端工程师视角——不讲热词，只讲范式为什么变了，以及<br>
+      memory / wiki / skill / profile / working memory 该怎么放进一个系统。
+    </p>
+    <div class="meta-row" data-anim style="margin-top:1.5vh">
+      <span>周启明</span><span>&nbsp;·&nbsp;</span><span>AI Agent Infra</span><span>&nbsp;·&nbsp;</span><span>Python / TypeScript / PostgreSQL / Docker</span>
+    </div>
+  </div>
+  <div class="foot">
+    <div style="font-family:var(--serif-en);font-style:italic;font-size:1.2vw;text-transform:none;letter-spacing:0;opacity:.65">"Humans steer. Agents execute."</div>
+    <div>01 / 10</div>
+  </div>
+</section>
+
+<!-- ======== SLIDE 2 为什么 dark ======== -->
+<section class="slide dark">
+  <div class="chrome">
+    <div>Why Now &nbsp;·&nbsp; 工程师视角</div>
+    <div>02 / 10</div>
+  </div>
+  <div class="frame" style="padding-top:4.5vh">
+    <div class="kicker" data-anim>WHY NOW</div>
+    <h2 class="h-xl" data-anim style="font-size:5.4vw;margin-bottom:4vh">单靠 Prompt 和 Context，<br>已经扛不住了。</h2>
+    <div class="grid-3" style="flex:0;align-content:start">
+      <div class="pillar" data-anim>
+        <div class="ic">01</div>
+        <div class="t">Prompt 不够</div>
+        <div class="d">复杂任务一条 prompt 解决不了。逻辑散落各处，难以版本化，出错不知从哪改。</div>
+      </div>
+      <div class="pillar" data-anim>
+        <div class="ic">02</div>
+        <div class="t">长 Context 也不够</div>
+        <div class="d">Context 越长延迟越高、成本越贵。存在 lost-in-the-middle 问题，中段内容被模型遗忘。</div>
+      </div>
+      <div class="pillar" data-anim>
+        <div class="ic">03</div>
+        <div class="t">Agent 持续工作暴露新问题</div>
+        <div class="d">环境、状态、知识、反馈回路——旧范式完全没有原语覆盖。一旦 agent 持续工作，系统就失控。</div>
+      </div>
+    </div>
+    <div class="callout" data-anim style="margin-top:4vh">
+      <div class="q-big">从"写代码解决问题"&nbsp;&rarr;&nbsp;"设计环境、工具、反馈回路让 agent 解决问题"</div>
+      <span class="cite">工程师角色转变的本质：从代码编写者到 agent 驾驭者</span>
+    </div>
+  </div>
+  <div class="foot">
+    <div>工程范式转变的起点不是模型，而是控制面的缺失</div>
+    <div>— · —</div>
+  </div>
+</section>
+
+<!-- ======== SLIDE 3 三阶段演进 light ======== -->
+<section class="slide light">
+  <div class="chrome">
+    <div>范式演进 &nbsp;·&nbsp; Three Paradigms</div>
+    <div>03 / 10</div>
+  </div>
+  <div class="frame" style="padding-top:3.5vh">
+    <div class="kicker" data-anim>Prompt &rarr; Context &rarr; Harness</div>
+    <h2 class="h-xl" data-anim style="font-size:4.6vw;margin-bottom:3vh">三次工程转向</h2>
+
+    <div data-anim style="display:grid;grid-template-columns:1fr 2fr 2fr 2fr;gap:1.2vw;padding-bottom:1.2vh;border-bottom:2px solid rgba(var(--ink-rgb),.18)">
+      <div></div>
+      <div style="font-family:var(--serif-zh);font-weight:700;font-size:1.35vw;line-height:1.3">Prompt Engineering<br><span style="font-family:var(--mono);font-weight:400;font-size:.75em;opacity:.5">2020–2022</span></div>
+      <div style="font-family:var(--serif-zh);font-weight:700;font-size:1.35vw;line-height:1.3">Context Engineering<br><span style="font-family:var(--mono);font-weight:400;font-size:.75em;opacity:.5">2022–2024</span></div>
+      <div style="font-family:var(--serif-zh);font-weight:700;font-size:1.35vw;line-height:1.3">Harness Engineering<br><span style="font-family:var(--mono);font-weight:400;font-size:.75em;opacity:.5">2024–至今</span></div>
+    </div>
+
+    <div class="rowline" data-anim>
+      <div class="k">核心问题</div>
+      <div class="v">怎么说</div>
+      <div class="v">给什么背景</div>
+      <div class="v accent">怎样搭可工作的 Agent Runtime</div>
+    </div>
+    <div class="rowline" data-anim>
+      <div class="k">关键词</div>
+      <div class="v">Zero-shot · Few-shot · CoT</div>
+      <div class="v">RAG · 长上下文 · 记忆</div>
+      <div class="v accent">Agent · 工具调用 · 可观测性</div>
+    </div>
+    <div class="rowline" data-anim>
+      <div class="k">局限</div>
+      <div class="v">上下文窗口 / 幻觉 / 无法执行动作</div>
+      <div class="v">成本高 / lost-in-middle / 状态散</div>
+      <div class="v accent">状态、环境、知识、反馈需要统一管理</div>
+    </div>
+    <div class="rowline" data-anim>
+      <div class="k">工程产物</div>
+      <div class="v">Prompt 模板</div>
+      <div class="v">向量库 + 检索管道</div>
+      <div class="v accent">Agent Runtime + Harness 框架</div>
+    </div>
+    <div class="rowline" data-anim>
+      <div class="k">类比</div>
+      <div class="v">精准发指令的厨师菜谱</div>
+      <div class="v">给厨师准备了丰富的食材库</div>
+      <div class="v accent">聘了米其林大厨，只告诉目标，让他自主创作</div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>三次范式转移的本质：控制粒度在持续下移</div>
+    <div>— · —</div>
+  </div>
+</section>
+
+<!-- ======== SLIDE 4 Harness五要素 light pipeline ======== -->
+<section class="slide light" data-animate="pipeline">
+  <div class="chrome">
+    <div>Harness 组成 &nbsp;·&nbsp; Five Components</div>
+    <div>04 / 10</div>
+  </div>
+  <div class="frame" style="padding-top:4vh">
+    <div class="kicker">Harness = 不只是 Prompt，而是一套可控系统</div>
+    <h2 class="h-xl" style="font-size:4.5vw;margin-bottom:.8vh">Harness 的五个组成</h2>
+    <p class="lead" style="margin-bottom:3.5vh;opacity:.58;font-size:1.45vw">按 &rarr; 键逐步展开 &nbsp;·&nbsp; 每一层缺一不可</p>
+
+    <div class="pipeline-section">
+      <div class="pipeline" data-cols="5">
+        <div class="step" data-anim="step">
+          <div class="step-nb">01 · Environment</div>
+          <div class="step-title">环境</div>
+          <div class="step-desc">文件系统、代码仓库、浏览器、终端。没有真实环境，agent 只是会聊天的模型。</div>
+        </div>
+        <div class="step" data-anim="step">
+          <div class="step-nb">02 · Tools</div>
+          <div class="step-title">工具</div>
+          <div class="step-desc">代码执行、API 调用、文件读写、数据库查询、浏览器操作。工具定义了 agent 的行动边界。</div>
+        </div>
+        <div class="step" data-anim="step">
+          <div class="step-nb">03 · Knowledge</div>
+          <div class="step-title">知识</div>
+          <div class="step-desc">wiki、设计文档、规范、代码注释。不是训练进权重的，而是运行时可查询的。</div>
+        </div>
+        <div class="step" data-anim="step">
+          <div class="step-nb">04 · Feedback</div>
+          <div class="step-title">反馈回路</div>
+          <div class="step-desc">测试通过/失败、lint 结果、用户评分、人工介入。没有反馈，agent 就是黑箱。</div>
+        </div>
+        <div class="step" data-anim="step">
+          <div class="step-nb">05 · Constraints</div>
+          <div class="step-title">约束</div>
+          <div class="step-desc">操作权限、安全边界、不可逆操作需人工审批。这是可控性的工程保障。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:3.8vh">
+      <div style="display:flex;gap:3.5vw;font-family:var(--mono);font-size:max(11px,.82vw);letter-spacing:.16em;text-transform:uppercase;opacity:.78">
+        <span>可控性 Controllability</span>
+        <span style="opacity:.35">&nbsp;·&nbsp;</span>
+        <span>可观测性 Observability</span>
+        <span style="opacity:.35">&nbsp;·&nbsp;</span>
+        <span>可恢复性 Recoverability</span>
+      </div>
+      <span class="cite">Harness 的三个核心工程原则</span>
+    </div>
+  </div>
+  <div class="foot">
+    <div>五个组成顺序即依赖关系：环境先于工具，工具先于知识</div>
+    <div>— · —</div>
+  </div>
+</section>
+
+<!-- ======== SLIDE 5 Runtime Substrate dark ======== -->
+<section class="slide dark">
+  <div class="chrome">
+    <div>Runtime Substrate &nbsp;·&nbsp; Thread / Turn / Item</div>
+    <div>05 / 10</div>
+  </div>
+  <div class="frame" style="padding-top:4vh">
+    <div class="kicker" data-anim>从多轮聊天到结构化 Runtime</div>
+    <div style="display:grid;grid-template-columns:48fr 52fr;gap:4.5vw;flex:1;align-items:start;margin-top:2vh">
+      <div style="display:flex;flex-direction:column;gap:2.5vh">
+        <div data-anim>
+          <div style="font-family:var(--mono);font-size:max(10px,.8vw);letter-spacing:.22em;text-transform:uppercase;opacity:.5;margin-bottom:.7vh">Thread</div>
+          <div style="font-family:var(--serif-zh);font-weight:600;font-size:max(14px,1.2vw);line-height:1.45">完整任务的生命周期容器。可跨多个 Turn 持续运行，拥有独立状态和历史。</div>
+        </div>
+        <div data-anim>
+          <div style="font-family:var(--mono);font-size:max(10px,.8vw);letter-spacing:.22em;text-transform:uppercase;opacity:.5;margin-bottom:.7vh">Turn</div>
+          <div style="font-family:var(--serif-zh);font-weight:600;font-size:max(14px,1.2vw);line-height:1.45">一次人-Agent 或 Agent-Tool 的交互单元。每个 Turn 包含若干 Item。</div>
+        </div>
+        <div data-anim>
+          <div style="font-family:var(--mono);font-size:max(10px,.8vw);letter-spacing:.22em;text-transform:uppercase;opacity:.5;margin-bottom:.7vh">Item</div>
+          <div style="font-family:var(--serif-zh);font-weight:600;font-size:max(14px,1.2vw);line-height:1.45">Turn 内部的结构化事件：<span style="font-family:var(--mono);font-size:.9em;opacity:.82">user_message</span> / <span style="font-family:var(--mono);font-size:.9em;opacity:.82">tool_call</span> / <span style="font-family:var(--mono);font-size:.9em;opacity:.82">tool_result</span></div>
+        </div>
+        <div data-anim>
+          <div style="font-family:var(--mono);font-size:max(10px,.8vw);letter-spacing:.22em;text-transform:uppercase;opacity:.5;margin-bottom:.7vh">App Server</div>
+          <div style="font-family:var(--serif-zh);font-weight:600;font-size:max(14px,1.2vw);line-height:1.45">管理多 Thread 状态，处理状态压缩（state compaction），暴露工具和上下文给 Agent。</div>
+        </div>
+        <div class="callout" data-anim style="margin-top:.5vh">
+          <div class="q-big" style="font-size:max(13px,1.08vw)">结构化带来：状态压缩 &nbsp;·&nbsp; 检查点恢复 &nbsp;·&nbsp; 并行多 Thread</div>
+        </div>
+      </div>
+      <div data-anim>
+        <div class="code-block">Thread <span class="cm"># 完整任务容器</span>
+  ├── Turn 1 <span class="cm"># 第一轮交互</span>
+  │     ├── Item: <span class="kw">user_message</span>
+  │     │         "帮我分析这个仓库"
+  │     ├── Item: <span class="kw">tool_call</span>
+  │     │         read_file("src/main.py")
+  │     └── Item: <span class="kw">tool_result</span>
+  │               {content: "class Agent..."}
+  └── Turn 2 <span class="cm"># 继续执行</span>
+        ├── Item: <span class="kw">assistant_message</span>
+        │         "发现 3 个潜在问题..."
+        ├── Item: <span class="kw">tool_call</span>
+        │         run_tests()
+        └── Item: <span class="kw">tool_result</span>
+                  {passed: 42, failed: 1}</div>
+        <div style="font-family:var(--mono);font-size:max(10px,.75vw);letter-spacing:.16em;text-transform:uppercase;opacity:.35;margin-top:1.2vh">vs 传统多轮对话：所有历史拼成一个大 string 塞进 context</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Thread / Turn / Item 是 Harness Runtime 的骨架原语，不是聊天记录</div>
+    <div>05 / 10</div>
+  </div>
+</section>
+
+<!-- ======== SLIDE 6 章节幕封 hero light ======== -->
+<section class="slide hero light">
+  <div class="chrome">
+    <div>Act II &nbsp;·&nbsp; 知识与状态</div>
+    <div>Act II &nbsp;·&nbsp; 06 / 10</div>
+  </div>
+  <div class="frame" style="display:grid;gap:5vh;align-content:center;min-height:80vh">
+    <div class="kicker" data-anim style="color:var(--ink)">Act II</div>
+    <h1 class="h-hero" data-anim style="color:var(--ink);font-size:8.2vw">知识 · 状态 · 资源</h1>
+    <p class="lead" style="max-width:55vw;color:var(--ink)" data-anim>
+      五类资源，各归其位，按需注入。<br>把它们混进一个大 context 是最常见的工程错误。
+    </p>
+    <div class="meta-row" data-anim style="color:var(--ink);margin-top:.5vh">
+      <span>Wiki / Resource</span><span>&nbsp;·&nbsp;</span><span>Skill</span><span>&nbsp;·&nbsp;</span><span>Profile</span><span>&nbsp;·&nbsp;</span><span>Memory</span><span>&nbsp;·&nbsp;</span><span>Working Memory</span>
+    </div>
+  </div>
+  <div class="foot" style="color:var(--ink)">
+    <div>分层存储，按需检索注入</div>
+    <div>— · —</div>
+  </div>
+</section>
+
+<!-- ======== SLIDE 7 五类资源分层 light ======== -->
+<section class="slide light">
+  <div class="chrome">
+    <div>资源分层 &nbsp;·&nbsp; Knowledge vs State</div>
+    <div>07 / 10</div>
+  </div>
+  <div class="frame" style="padding-top:3vh">
+    <div class="kicker" data-anim>五类资源，各归其位</div>
+    <h2 class="h-xl" data-anim style="font-size:4vw;margin-bottom:2.8vh">知识层 vs 状态层</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1px 1fr;gap:2.8vw;flex:1;align-items:start">
+      <div data-anim>
+        <div class="section-label">知识层 &nbsp;·&nbsp; 相对静态，可共享</div>
+        <div style="display:flex;flex-direction:column;gap:1.5vh">
+          <div class="resource-card">
+            <div class="rc-label">Resource / Wiki</div>
+            <div class="rc-title">知识库</div>
+            <div class="rc-meta">设计文档、API 规范、代码注释、团队 wiki<br>存储：向量数据库（pgvector / Chroma / Milvus）<br>接入：RAG 检索，按需注入当前 turn context</div>
+            <div class="rc-tag">图书馆 · 人人可查，不属于任何一个 agent</div>
+          </div>
+          <div class="resource-card">
+            <div class="rc-label">Skill</div>
+            <div class="rc-title">技能库</div>
+            <div class="rc-meta">可复用的工具函数、prompt 模板、操作步骤<br>存储：代码仓库 / 工具注册表<br>接入：工具调用（function calling / MCP）</div>
+            <div class="rc-tag">工具箱 · 拿来即用</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(127,127,127,.2);align-self:stretch" data-anim></div>
+
+      <div data-anim>
+        <div class="section-label">状态层 &nbsp;·&nbsp; 动态，用户 / 会话绑定</div>
+        <div style="display:flex;flex-direction:column;gap:1.2vh">
+          <div class="resource-card">
+            <div class="rc-label">Profile</div>
+            <div class="rc-title">用户画像</div>
+            <div class="rc-meta">用户偏好、角色、历史行为摘要<br>存储：PostgreSQL users 表 + 定期更新<br>接入：会话开始时注入 system prompt</div>
+            <div class="rc-tag">员工档案</div>
+          </div>
+          <div class="resource-card">
+            <div class="rc-label">Memory</div>
+            <div class="rc-title">长期记忆</div>
+            <div class="rc-meta">跨 session 的事实、偏好、重要决策记录<br>存储：PostgreSQL + 向量索引（支持语义检索）<br>接入：新会话开始时检索相关记忆注入</div>
+            <div class="rc-tag">日记本 · 按需翻阅</div>
+          </div>
+          <div class="resource-card">
+            <div class="rc-label">Working Memory</div>
+            <div class="rc-title">工作记忆</div>
+            <div class="rc-meta">当前 thread 内的临时状态、任务进度、中间结果<br>存储：thread 的 item 流 + 内存（不持久化）<br>接入：当前 context window 直接可见</div>
+            <div class="rc-tag">桌面便利贴 · 会话结束即清</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" data-anim style="margin-top:2.2vh;padding:1.8vh 2vw">
+      <span style="font-family:var(--mono);font-size:max(10px,.76vw);letter-spacing:.18em;text-transform:uppercase;opacity:.5;margin-right:1em">⚠ 最常见错误</span>
+      <span style="font-family:var(--sans-zh);font-size:max(12px,1.0vw)">把所有东西混进一个大 context &nbsp;·&nbsp; 正确做法：按类型分层存储，按需检索注入</span>
+    </div>
+  </div>
+  <div class="foot">
+    <div>五类资源 · 两层架构 · 统一的工程控制面</div>
+    <div>— · —</div>
+  </div>
+</section>
+
+<!-- ======== SLIDE 8 生产 vs 评测 dark directional ======== -->
+<section class="slide dark" data-animate="directional">
+  <div class="chrome">
+    <div>Production vs Evaluation &nbsp;·&nbsp; Harness</div>
+    <div>08 / 10</div>
+  </div>
+  <div class="frame" style="padding-top:4vh">
+    <div class="kicker" data-anim>两种 Harness，一个共同内核</div>
+    <h2 class="h-xl" data-anim style="font-size:4.4vw;margin-bottom:3.5vh">搭系统 vs 量系统</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1px 1fr;gap:3vw;flex:1;align-items:start">
+      <div data-anim="left" style="display:flex;flex-direction:column;gap:1.8vh">
+        <div style="font-family:var(--serif-zh);font-weight:700;font-size:2.0vw;margin-bottom:.4vh;line-height:1.2">Production Harness<br><span style="font-family:var(--mono);font-weight:400;font-size:.42em;opacity:.48;letter-spacing:.16em;text-transform:uppercase">生产环境</span></div>
+        <div class="rowline" style="grid-template-columns:max-content 1fr;gap:1.2vw;border-color:rgba(var(--paper-rgb),.14)">
+          <div class="k">目标</div><div class="v">让 Agent 在真实环境中可靠工作</div>
+        </div>
+        <div class="rowline" style="grid-template-columns:max-content 1fr;gap:1.2vw;border-color:rgba(var(--paper-rgb),.14)">
+          <div class="k">组成</div><div class="v">环境 + 工具 + 知识 + 反馈 + 约束</div>
+        </div>
+        <div class="rowline" style="grid-template-columns:max-content 1fr;gap:1.2vw;border-color:rgba(var(--paper-rgb),.14)">
+          <div class="k">关注</div><div class="v">延迟 · 成本 · 可控性 · 可恢复性</div>
+        </div>
+        <div class="rowline" style="grid-template-columns:max-content 1fr;gap:1.2vw;border-color:rgba(var(--paper-rgb),.14)">
+          <div class="k">输入</div><div class="v">用户真实请求</div>
+        </div>
+        <div class="rowline" style="grid-template-columns:max-content 1fr;gap:1.2vw;border-color:rgba(var(--paper-rgb),.14)">
+          <div class="k">反馈</div><div class="v">用户行为 / 满意度（实时）</div>
+        </div>
+        <div class="rowline" style="grid-template-columns:max-content 1fr;gap:1.2vw;border-color:rgba(var(--paper-rgb),.14)">
+          <div class="k">典型</div><div class="v">OpenAI Codex · Claude Code · 内部知识助手</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(var(--paper-rgb),.12);align-self:stretch" data-anim="divider"></div>
+
+      <div data-anim="right" style="display:flex;flex-direction:column;gap:1.8vh">
+        <div style="font-family:var(--serif-zh);font-weight:700;font-size:2.0vw;margin-bottom:.4vh;line-height:1.2">Evaluation Harness<br><span style="font-family:var(--mono);font-weight:400;font-size:.42em;opacity:.48;letter-spacing:.16em;text-transform:uppercase">评测体系</span></div>
+        <div class="rowline" style="grid-template-columns:max-content 1fr;gap:1.2vw;border-color:rgba(var(--paper-rgb),.14)">
+          <div class="k">目标</div><div class="v">量化 Agent 的能力边界和质量</div>
+        </div>
+        <div class="rowline" style="grid-template-columns:max-content 1fr;gap:1.2vw;border-color:rgba(var(--paper-rgb),.14)">
+          <div class="k">组成</div><div class="v">任务集 + 证据 + 评分口径 + 代价矩阵</div>
+        </div>
+        <div class="rowline" style="grid-template-columns:max-content 1fr;gap:1.2vw;border-color:rgba(var(--paper-rgb),.14)">
+          <div class="k">关注</div><div class="v">准确率 · 召回率 · 任务完成率 · 幻觉率</div>
+        </div>
+        <div class="rowline" style="grid-template-columns:max-content 1fr;gap:1.2vw;border-color:rgba(var(--paper-rgb),.14)">
+          <div class="k">输入</div><div class="v">标准化任务集（benchmark）</div>
+        </div>
+        <div class="rowline" style="grid-template-columns:max-content 1fr;gap:1.2vw;border-color:rgba(var(--paper-rgb),.14)">
+          <div class="k">反馈</div><div class="v">Ground truth 对比（版本发布时）</div>
+        </div>
+        <div class="rowline" style="grid-template-columns:max-content 1fr;gap:1.2vw;border-color:rgba(var(--paper-rgb),.14)">
+          <div class="k">典型</div><div class="v">ConvoMem · SWE-bench · 内部 benchmark</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" data-anim style="margin-top:3vh;padding:1.8vh 2vw">
+      <div style="font-family:var(--sans-zh);font-size:max(12px,1.0vw);line-height:1.6">
+        共同内核：<span style="font-family:var(--mono);font-size:.95em;opacity:.82">结构化环境 &nbsp;·&nbsp; 明确任务定义 &nbsp;·&nbsp; 可观测执行路径 &nbsp;·&nbsp; 反馈回路</span><br>
+        <span style="opacity:.55;font-size:.9em">评测 Harness 是生产 Harness 的质量镜像——往 infra / benchmark 方向走的工程师需要同时理解两者</span>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>两种 Harness 共享设计语言，只是服务目标不同</div>
+    <div>— · —</div>
+  </div>
+</section>
+
+<!-- ======== SLIDE 9 最小落地 light pipeline ======== -->
+<section class="slide light" data-animate="pipeline">
+  <div class="chrome">
+    <div>MVP 路径 &nbsp;·&nbsp; Python / TS + Postgres / Docker</div>
+    <div>09 / 10</div>
+  </div>
+  <div class="frame" style="padding-top:3.8vh">
+    <div class="kicker">后端工程师的最小落地路径</div>
+    <h2 class="h-xl" style="font-size:4.3vw;margin-bottom:.8vh">四步 MVP 路径</h2>
+    <p class="lead" style="margin-bottom:3vh;opacity:.56;font-size:1.38vw">按 &rarr; 键逐步展开 &nbsp;·&nbsp; 每一步都可独立交付</p>
+
+    <div class="pipeline-section">
+      <div class="pipeline" data-cols="4">
+        <div class="step" data-anim="step">
+          <div class="step-nb">Step 01 &nbsp;·&nbsp; 能回答问题</div>
+          <div class="step-title">RAG + 单工具调用</div>
+          <div class="step-desc">单 thread，接 pgvector 知识库，一个工具调用。能回答问题，能查文档。<br><br>FastAPI + LangGraph + psycopg2 + pgvector</div>
+        </div>
+        <div class="step" data-anim="step">
+          <div class="step-nb">Step 02 &nbsp;·&nbsp; 记得用户是谁</div>
+          <div class="step-title">Profile + Memory 持久化</div>
+          <div class="step-desc">users 表存 Profile，memories 表 + pgvector 存长期记忆。跨 session 不失忆。<br><br>PostgreSQL users + memories 表</div>
+        </div>
+        <div class="step" data-anim="step">
+          <div class="step-nb">Step 03 &nbsp;·&nbsp; 支持长任务</div>
+          <div class="step-title">Working Memory + 状态压缩</div>
+          <div class="step-desc">thread item 流作为 working memory，App Server 做状态压缩。不再被 context 窗口限制。<br><br>Redis 临时状态 + PostgreSQL 持久化</div>
+        </div>
+        <div class="step" data-anim="step">
+          <div class="step-nb">Step 04 &nbsp;·&nbsp; 量化能力边界</div>
+          <div class="step-title">评测 Harness 接入</div>
+          <div class="step-desc">构建 benchmark 任务集，接入评分口径。知道 agent 在哪弱，迭代有方向。<br><br>Ragas / 自建评测管道</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:3.5vh;display:flex;gap:1.2vw;flex-wrap:wrap">
+      <div class="tech-pill">Python · FastAPI · LangGraph</div>
+      <div class="tech-pill">TypeScript · Vercel AI SDK · Prisma</div>
+      <div class="tech-pill">PostgreSQL + pgvector</div>
+      <div class="tech-pill">Redis · Docker Compose</div>
+      <div class="tech-pill">OpenAI API · Claude API</div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>pgvector 一个库搞定向量检索 + 关系数据，不需要引入额外向量数据库</div>
+    <div>— · —</div>
+  </div>
+</section>
+
+<!-- ======== SLIDE 10 总结 hero dark quote ======== -->
+<section class="slide hero dark" data-animate="quote">
+  <div class="chrome">
+    <div>Takeaway &nbsp;·&nbsp; 避坑 + 行动</div>
+    <div>10 / 10</div>
+  </div>
+  <div class="frame" style="padding-top:4vh">
+    <div style="margin-bottom:3.5vh">
+      <div class="kicker" data-anim>The Takeaway</div>
+      <blockquote style="font-family:var(--serif-zh);font-weight:700;font-size:3.2vw;line-height:1.28;max-width:68vw;letter-spacing:-.005em">
+        <span data-anim="line" style="display:block">Prompt 关注<em style="font-family:var(--serif-en);font-style:italic"> 怎么说</em>&nbsp; ·</span>
+        <span data-anim="line" style="display:block">Context 关注<em style="font-family:var(--serif-en);font-style:italic"> 给什么背景</em>&nbsp; ·</span>
+        <span data-anim="line" style="display:block">Harness 关注怎样搭一个<em style="font-family:var(--serif-en);font-style:italic"> 可控、可观测、可恢复</em> 的 Agent Runtime</span>
+      </blockquote>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1px 1fr;gap:3vw;flex:0">
+      <div data-anim>
+        <div style="font-family:var(--mono);font-size:max(10px,.75vw);letter-spacing:.2em;text-transform:uppercase;opacity:.45;margin-bottom:1.5vh">三条行动</div>
+        <div style="display:flex;flex-direction:column;gap:1.1vh">
+          <div style="font-family:var(--sans-zh);font-size:max(13px,1.02vw);line-height:1.55;display:flex;gap:.8vw;align-items:flex-start">
+            <span style="font-family:var(--mono);opacity:.38;flex-shrink:0;padding-top:.1em">&rarr;</span>
+            <span>用 <span style="font-family:var(--mono);font-size:.92em;opacity:.82">pgvector</span> 搭知识库，替换临时 RAG 实验</span>
+          </div>
+          <div style="font-family:var(--sans-zh);font-size:max(13px,1.02vw);line-height:1.55;display:flex;gap:.8vw;align-items:flex-start">
+            <span style="font-family:var(--mono);opacity:.38;flex-shrink:0;padding-top:.1em">&rarr;</span>
+            <span>用 <span style="font-family:var(--mono);font-size:.92em;opacity:.82">thread / turn / item</span> 结构化你的 agent 状态</span>
+          </div>
+          <div style="font-family:var(--sans-zh);font-size:max(13px,1.02vw);line-height:1.55;display:flex;gap:.8vw;align-items:flex-start">
+            <span style="font-family:var(--mono);opacity:.38;flex-shrink:0;padding-top:.1em">&rarr;</span>
+            <span>分清 <span style="font-family:var(--mono);font-size:.92em;opacity:.82">working memory / memory / wiki</span> 的边界</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(var(--paper-rgb),.1);align-self:stretch" data-anim></div>
+
+      <div data-anim>
+        <div style="font-family:var(--mono);font-size:max(10px,.75vw);letter-spacing:.2em;text-transform:uppercase;opacity:.45;margin-bottom:1.5vh">五个最常见误解</div>
+        <div style="display:flex;flex-direction:column;gap:.85vh">
+          <div style="font-family:var(--sans-zh);font-size:max(12px,.95vw);line-height:1.5;display:flex;gap:.8vw">
+            <span style="font-family:var(--mono);opacity:.32;flex-shrink:0">01</span>
+            <span><span style="text-decoration:line-through;opacity:.42">"Harness 就是换名字的 RAG"</span>&nbsp;&rarr;&nbsp;RAG 只是知识层的检索方式</span>
+          </div>
+          <div style="font-family:var(--sans-zh);font-size:max(12px,.95vw);line-height:1.5;display:flex;gap:.8vw">
+            <span style="font-family:var(--mono);opacity:.32;flex-shrink:0">02</span>
+            <span><span style="text-decoration:line-through;opacity:.42">"Context 越长越好"</span>&nbsp;&rarr;&nbsp;lost-in-middle 是真实且昂贵的问题</span>
+          </div>
+          <div style="font-family:var(--sans-zh);font-size:max(12px,.95vw);line-height:1.5;display:flex;gap:.8vw">
+            <span style="font-family:var(--mono);opacity:.32;flex-shrink:0">03</span>
+            <span><span style="text-decoration:line-through;opacity:.42">"Memory = 历史对话存数据库"</span>&nbsp;&rarr;&nbsp;Working Memory ≠ Memory</span>
+          </div>
+          <div style="font-family:var(--sans-zh);font-size:max(12px,.95vw);line-height:1.5;display:flex;gap:.8vw">
+            <span style="font-family:var(--mono);opacity:.32;flex-shrink:0">04</span>
+            <span><span style="text-decoration:line-through;opacity:.42">"评测 harness 和生产无关"</span>&nbsp;&rarr;&nbsp;两者共享结构化内核</span>
+          </div>
+          <div style="font-family:var(--sans-zh);font-size:max(12px,.95vw);line-height:1.5;display:flex;gap:.8vw">
+            <span style="font-family:var(--mono);opacity:.32;flex-shrink:0">05</span>
+            <span><span style="text-decoration:line-through;opacity:.42">"配好 schema 就完了"</span>&nbsp;&rarr;&nbsp;工具还需权限 · 重试 · 结果结构化</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div style="font-family:var(--serif-en);font-style:italic;font-size:1.15vw;text-transform:none;letter-spacing:0;opacity:.62">"Humans steer. Agents execute."</div>
+    <div>— 2026 —</div>
+  </div>
+</section>
+
+</div><!-- /deck -->
+
+<div id="nav"></div>
+
+<script>
+const VS=`attribute vec2 position;void main(){gl_Position=vec4(position,0.0,1.0);}`;
+const FS_DARK=`precision highp float;
+uniform vec2 u_resolution;uniform float u_time;uniform vec2 u_mouse;
+vec3 palette(float t,vec3 a,vec3 b,vec3 c,vec3 d){return a+b*cos(6.28318*(c*t+d));}
+void main(){
+  vec2 uv=gl_FragCoord.xy/u_resolution.xy;
+  vec2 p=uv*2.0-1.0;p.x*=u_resolution.x/u_resolution.y;
+  vec2 m=u_mouse*2.0-1.0;m.x*=u_resolution.x/u_resolution.y;
+  float md=length(p-m);
+  float mr=sin(md*15.0-u_time*4.0)*exp(-md*3.0);p+=mr*0.08;
+  vec2 p0=p;
+  for(float i=1.0;i<4.0;i++){p.x+=0.1/i*sin(i*3.0*p.y+u_time*0.4)+0.05;p.y+=0.1/i*cos(i*2.0*p.x+u_time*0.3)-0.05;}
+  float r=length(p);float ang=atan(p.y,p.x);
+  vec3 a=vec3(0.04,0.09,0.22);vec3 b=vec3(0.04,0.06,0.14);
+  vec3 c=vec3(1.0,0.75,0.55);vec3 d=vec3(0.08,0.22,0.52);
+  vec3 col=palette(r*1.5+p0.x*0.5+u_time*0.1,a,b,c,d);
+  float disp=sin(r*25.0-u_time*1.5+ang*2.0)*0.5+0.5;
+  col+=vec3(disp*0.018,disp*0.035,disp*0.075);
+  float hi=pow(sin(p.x*4.0+p.y*3.0+u_time)*0.5+0.5,8.0);col+=hi*0.06;
+  col=mix(vec3(0.04,0.08,0.18),col,0.82);
+  gl_FragColor=vec4(col,1.0);}`;
+const FS_LIGHT=`precision highp float;
+uniform vec2 u_resolution;uniform float u_time;uniform vec2 u_mouse;
+float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float noise(vec2 p){vec2 i=floor(p),f=fract(p);float a=hash(i),b=hash(i+vec2(1,0));float c=hash(i+vec2(0,1)),d=hash(i+vec2(1,1));vec2 u=f*f*(3.0-2.0*f);return mix(a,b,u.x)+(c-a)*u.y*(1.0-u.x)+(d-b)*u.x*u.y;}
+float fbm(vec2 p){float v=0.0,a=0.5;mat2 m=mat2(0.80,0.60,-0.60,0.80);for(int i=0;i<5;i++){v+=a*noise(p);p=m*p*2.02;a*=0.5;}return v;}
+void main(){
+  vec2 uv=gl_FragCoord.xy/u_resolution.xy;
+  vec2 p=uv;p.x*=u_resolution.x/u_resolution.y;
+  vec2 m=u_mouse;m.x*=u_resolution.x/u_resolution.y;
+  vec2 md=p-m;float dl=length(md);
+  p+=normalize(md+vec2(0.0001))*exp(-dl*5.0)*0.03;
+  vec2 q=vec2(fbm(p*1.8+u_time*0.07),fbm(p*1.8+vec2(5.2,1.3)+u_time*0.06));
+  vec2 rv=vec2(fbm(p*2.0+q*1.3+vec2(1.7,9.2)+u_time*0.05),fbm(p*2.0+q*1.3+vec2(8.3,2.8)+u_time*0.04));
+  float f=fbm(p*2.2+rv*1.5);
+  vec3 col=mix(vec3(0.86,0.89,0.96),vec3(0.946,0.953,0.961),f);
+  float ph=rv.x*2.2+u_time*0.35;
+  col+=vec3(0.45,0.58,0.95)*sin(ph)*0.038+vec3(0.35,0.72,0.95)*sin(ph*0.8+2.0)*0.03;
+  gl_FragColor=vec4(col,1.0);}`;
+
+const mouse={x:0.5,y:0.5};
+addEventListener('mousemove',e=>{mouse.x=e.clientX/innerWidth;mouse.y=e.clientY/innerHeight});
+function bootGL(id,fs){
+  const c=document.getElementById(id),gl=c.getContext('webgl',{alpha:false,antialias:true});
+  if(!gl)return null;
+  const mk=(t,s)=>{const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);return sh};
+  const pr=gl.createProgram();gl.attachShader(pr,mk(gl.VERTEX_SHADER,VS));gl.attachShader(pr,mk(gl.FRAGMENT_SHADER,fs));gl.linkProgram(pr);gl.useProgram(pr);
+  const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
+  const pos=gl.getAttribLocation(pr,'position');gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
+  const lR=gl.getUniformLocation(pr,'u_resolution'),lT=gl.getUniformLocation(pr,'u_time'),lM=gl.getUniformLocation(pr,'u_mouse');
+  const rsz=()=>{const d=Math.min(devicePixelRatio||1,2);c.width=innerWidth*d;c.height=innerHeight*d;gl.viewport(0,0,c.width,c.height)};
+  addEventListener('resize',rsz);rsz();
+  return t=>{gl.uniform2f(lR,c.width,c.height);gl.uniform1f(lT,t);gl.uniform2f(lM,mouse.x,1-mouse.y);gl.drawArrays(gl.TRIANGLES,0,6);return true};
+}
+const dD=bootGL('bg-dark',FS_DARK),dL=bootGL('bg-light',FS_LIGHT);
+if(!dD||!dL)document.body.classList.add('webgl-off');
+const t0=Date.now();
+(function loop(){const t=(Date.now()-t0)/1e3;if(dD)dD(t);if(dL)dL(t);requestAnimationFrame(loop)})();
+
+const deck=document.getElementById('deck'),slides=deck.querySelectorAll('.slide'),nav=document.getElementById('nav');
+let idx=0,total=slides.length,lock=false;
+deck.style.width=(total*100)+'vw';
+slides.forEach((s,i)=>{const b=document.createElement('button');b.className='dot';b.setAttribute('aria-label','Page '+(i+1));b.onclick=()=>go(i);nav.appendChild(b)});
+
+function go(n){
+  if(lock)return;idx=Math.max(0,Math.min(total-1,n));
+  deck.style.transform=`translateX(${-idx*100}vw)`;
+  nav.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+  const el=slides[idx],th=el.dataset.theme||(el.classList.contains('light')?'light':'dark');
+  document.body.classList.toggle('light-bg',th==='light');
+  if(window.__playSlide)setTimeout(()=>window.__playSlide(idx),450);
+  lock=true;setTimeout(()=>lock=false,700);
+}
+
+let ovOn=false;
+const ov=document.createElement('div');
+ov.style.cssText='position:fixed;inset:0;z-index:100;background:rgba(var(--ink-rgb),.92);backdrop-filter:blur(12px);display:none;overflow-y:auto;padding:4vh 4vw';
+document.body.appendChild(ov);
+function buildOv(){ov.innerHTML='';const g=document.createElement('div');g.style.cssText='display:grid;grid-template-columns:repeat(5,1fr);gap:1.6vh 1.2vw;max-width:90vw;margin:0 auto';slides.forEach((s,i)=>{const c=document.createElement('div');c.style.cssText='cursor:pointer;border-radius:5px;overflow:hidden;border:2px solid '+(i===idx?'rgba(255,255,255,.8)':'rgba(255,255,255,.14)')+';transition:border-color .2s';c.onmouseenter=()=>c.style.borderColor='rgba(255,255,255,.55)';c.onmouseleave=()=>c.style.borderColor=i===idx?'rgba(255,255,255,.8)':'rgba(255,255,255,.14)';const w=document.createElement('div');w.style.cssText='width:100%;aspect-ratio:16/9;overflow:hidden;position:relative;background:'+(s.classList.contains('light')?'var(--paper)':'var(--ink)');const cl=s.cloneNode(true);cl.style.cssText='width:100vw;height:100vh;transform:scale(.22);transform-origin:top left;position:absolute;top:0;left:0;pointer-events:none';w.appendChild(cl);const lb=document.createElement('div');lb.style.cssText='padding:5px 8px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--paper);opacity:.65';lb.textContent=(i+1)+' / '+total;c.appendChild(w);c.appendChild(lb);c.onclick=()=>{toggleOv();go(i)};g.appendChild(c)});ov.appendChild(g)}
+function toggleOv(){ovOn=!ovOn;if(ovOn){buildOv();ov.style.display='block'}else{ov.style.display='none'}}
+
+addEventListener('keydown',e=>{
+  if(e.key==='Escape'){e.preventDefault();toggleOv();return}
+  if(ovOn)return;
+  if(['ArrowRight','PageDown',' ','ArrowDown'].includes(e.key)){if(window.__pipeAdvance&&window.__pipeAdvance())return;go(idx+1);return}
+  if(['ArrowLeft','PageUp','ArrowUp'].includes(e.key))go(idx-1);
+  if(e.key==='Home')go(0);if(e.key==='End')go(total-1);
+});
+let wTO=null,wAcc=0;
+addEventListener('wheel',e=>{wAcc+=e.deltaY+e.deltaX;if(Math.abs(wAcc)>50){if(wAcc>0&&window.__pipeAdvance&&window.__pipeAdvance()){wAcc=0}else{go(idx+(wAcc>0?1:-1));wAcc=0}}clearTimeout(wTO);wTO=setTimeout(()=>wAcc=0,150)},{passive:true});
+let tx=0,ty=0;
+addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
+addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){if(dx<0&&window.__pipeAdvance&&window.__pipeAdvance())return;go(idx+(dx<0?1:-1))}},{passive:true});
+go(0);
+</script>
+
+<script type="module">
+let motion;
+try{motion=await import('https://cdn.jsdelivr.net/npm/motion@11.11.17/+esm')}
+catch(e){document.querySelectorAll('[data-anim]').forEach(el=>{el.style.opacity='1';el.style.transform='none'});document.querySelectorAll('[data-animate="pipeline"] [data-anim]').forEach(el=>el.style.opacity='1')}
+
+if(motion){
+  const{animate,stagger}=motion;
+  document.body.classList.add('motion-ready');
+  const E=[.22,1,.36,1],SL=[...document.querySelectorAll('.slide')];
+  let pStep=-1,lastI=-1;
+
+  function resetA(s){s.querySelectorAll('[data-anim]').forEach(el=>{el.style.opacity='';el.style.transform=''})}
+
+  function playSlide(i){
+    const s=SL[i];if(!s)return;lastI=i;
+    const r=s.dataset.animate||(s.classList.contains('hero')?'hero':'cascade');
+    if(r==='pipeline'){pStep=-1;s.querySelectorAll('[data-anim]').forEach(el=>{el.style.opacity='0.15';el.style.transform='none'});return}
+    resetA(s);const all=[...s.querySelectorAll('[data-anim]')];if(!all.length)return;
+    if(r==='directional'){
+      const L=all.filter(e=>e.dataset.anim==='left'),D=all.filter(e=>e.dataset.anim==='divider'),R=all.filter(e=>e.dataset.anim==='right'),O=all.filter(e=>!['left','right','divider'].includes(e.dataset.anim));
+      if(O.length)animate(O,{opacity:[0,1],y:[12,0]},{duration:.6,delay:stagger(.1,{start:.15}),easing:E});
+      if(L.length)animate(L,{opacity:[0,1],x:[-24,0]},{duration:.8,delay:.35,easing:E});
+      if(D.length)animate(D,{opacity:[0,.25]},{duration:.5,delay:.9});
+      if(R.length)animate(R,{opacity:[0,1],x:[24,0]},{duration:.8,delay:1.0,easing:E});
+      return;
+    }
+    if(r==='quote'){
+      const lines=all.filter(e=>e.dataset.anim==='line'),oth=all.filter(e=>e.dataset.anim!=='line');
+      if(oth.length)animate(oth,{opacity:[0,1],y:[8,0]},{duration:.6,delay:stagger(.12,{start:.2}),easing:E});
+      if(lines.length)animate(lines,{opacity:[.35,1],y:[10,0]},{duration:.8,delay:stagger(.55,{start:.5}),easing:E});
+      return;
+    }
+    if(r==='hero'){animate(all,{opacity:[0,1],y:[14,0]},{duration:.9,delay:stagger(.16,{start:.2}),easing:E});return}
+    animate(all,{opacity:[0,1],y:[16,0]},{duration:.75,delay:stagger(.1,{start:.15}),easing:E});
+  }
+
+  function pipeAdvance(){
+    const s=SL[lastI];if(!s||s.dataset.animate!=='pipeline')return false;
+    const steps=[...s.querySelectorAll('[data-anim="step"]')];
+    if(pStep>=steps.length-1)return false;
+    pStep++;animate(steps[pStep],{opacity:[0.15,1],y:[8,0]},{duration:.5,easing:E});
+    return true;
+  }
+
+  window.__playSlide=playSlide;window.__pipeAdvance=pipeAdvance;
+  playSlide(0);
+}
+</script>
+</body>
+</html>
