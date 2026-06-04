@@ -29,7 +29,6 @@ This project belongs to my broader **Metamorphosis** space: a code-and-thought a
 - Results page ranked by vote count
 - Result cards linking back to the corresponding style preview
 - Curated and redesigned PPT style templates
-- Static-site friendly deployment for Netlify or GitHub Pages
 
 ## Screenshot
 
@@ -87,3 +86,7 @@ This repository is part of my ongoing exploration of **AI & Aesthetics**:
 - AI & logical aesthetics
 
 **Aesthetic Deck** currently focuses on the visual side: how presentation styles can become reusable, comparable, and aesthetically expressive.
+
+## Acknowledgements
+
+Thanks to the original authors of `guizang-ppt` and `html-ppt` for the inspiration and foundational work. Most styles in this project also include my own newly designed and repackaged visual directions.

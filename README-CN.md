@@ -21,7 +21,6 @@
 - 按票数排序的结果页
 - 结果卡片可跳回对应风格预览
 - 自己筛选、重新设计并封装的 PPT 样式模板
-- 支持 Netlify 或 GitHub Pages 等静态站点部署
 
 ## 截图
 
@@ -79,3 +78,7 @@ Aesthetic-Deck/
 - AI & logical aesthetics
 
 **Aesthetic Deck** 目前聚焦视觉美学：让演示风格变得可复用、可比较，也更具有审美表达。
+
+## 致谢
+
+感谢 `guizang-ppt` 和 `html-ppt` 原作者的启发与基础工作；当前项目中的大部分样式也包含我自己新增设计与重新封装的部分。
