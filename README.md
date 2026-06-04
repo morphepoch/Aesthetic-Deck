@@ -60,6 +60,10 @@ The 12 selected styles are also packaged as a reusable skill:
 
 The skill includes the selected theme CSS files, shared deck runtime assets, a starter deck template, and standalone examples for the current style set.
 
+Compared with directly using the source repositories, Aesthetic Deck Skill adds a generation-stability layer. I curated, newly designed, and repackaged selected styles with layout safeguards such as responsive typography, overflow-aware containers, media size limits, grid spacing constraints, and short-viewport compression rules to reduce content overflow, accidental truncation, oversized typography, and broken layouts in AI-generated decks.
+
+The goal is not only to provide visual styles, but also to make AI-generated decks more stable, readable, and presentation-ready.
+
 ## Current PPT Styles
 
 The current style set includes selected and redesigned templates such as:

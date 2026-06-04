@@ -46,6 +46,18 @@ Use shared assets:
 
 Use `references/style-guide.md` and `references/style-manifest.json` to choose a style.
 
+## Layout Safeguards
+
+When generating decks, preserve the package's layout-safety rules:
+
+- Use responsive typography with bounded `clamp()` ranges for titles, body text, and lead text.
+- Keep overflow-aware containers such as `.slide`, `.card`, and `.slide-body`; do not remove `overflow:hidden` or `min-height:0` without a layout reason.
+- Keep media size protection with `max-width`, `max-height`, and `object-fit: contain` so images and videos do not break slide height.
+- Use existing grid, card, and spacing primitives instead of ad-hoc absolute positioning whenever possible.
+- Preserve short-viewport compression media queries for projector, iframe preview, and small-window environments.
+- Preserve `templates/deck.html` imports for `fonts.css`, `base.css`, theme CSS, `animations.css`, and `runtime.js`.
+- For cross-source themes such as `indigo-porcelain`, keep the compatibility mapping between `guizang-ppt` tokens and `html-ppt` tokens.
+
 ## Style Selection Guidance
 
 - Product pitch / business storytelling: `pitch-deck-vc`, `glassmorphism`, `art-deco`
