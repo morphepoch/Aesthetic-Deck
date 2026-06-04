@@ -13,6 +13,6 @@ A curated set of 12 PPT aesthetics selected from the Aesthetic Deck voting space
 - `engineering-whiteprint` — 工程白印; source: html-ppt0520 2
 - `aurora` — 极光; source: html-ppt0520 2
 - `glassmorphism` — 玻璃态; source: html-ppt0520 2
-- `indigo-porcelain` — 靛蓝青瓷; source: Aesthetic Deck compatible theme, derived from current Indigo Porcelain showcase palette
+- `indigo-porcelain` — 靛蓝青瓷; source: guizang-ppt/assets/themes/indigo-porcelain.css + html-ppt compatibility layer
 - `organic-blob` — 有机团块; source: html-ppt0520 2
 - `grain-texture` — 颗粒肌理; source: html-ppt0520 2

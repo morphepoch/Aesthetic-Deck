@@ -50,7 +50,7 @@
     {
       "id": "indigo-porcelain",
       "file": "assets/themes/indigo-porcelain.css",
-      "source": "Aesthetic Deck compatible theme, derived from current Indigo Porcelain showcase palette"
+      "source": "guizang-ppt/assets/themes/indigo-porcelain.css + html-ppt compatibility layer"
     },
     {
       "id": "organic-blob",
