@@ -4,25 +4,15 @@
 
 # Aesthetic Deck 🦋
 
-一个用于探索 **AI & Aesthetics** 在 PPT 风格设计中如何落地的样式空间。
+一个用于探索 **AI & Aesthetics** 在 PPT 风格设计落地的样式空间。
 
-线上演示：https://extraordinary-llama-d25dda.netlify.app/
+线上演示：`https://extraordinary-llama-d25dda.netlify.app/`
 
 ## Aesthetic Deck 是什么？
 
-**Aesthetic Deck** 是一个基于 Web 的 PPT 风格样式空间。
+**Aesthetic Deck** 是一个基于 Web 的 PPT 风格样式空间，作者日常喜欢与常用的风格，和自己新增设计的都被收录在 Aesthetic Deck。
 
-这里收录了作者日常喜欢与常用的 PPT 风格，也收录了我自己新增设计、重新封装的样式。你可以在这里预览不同风格，并对喜欢的风格进行投票。
-
-它不只是一个投票页面，也是在探索 AI 生成演示文稿时，如何拥有更稳定的视觉品味、更清晰的结构表达，以及更有辨识度的界面语言。
-
-这个项目属于我的 **Metamorphosis** 空间：一个关于 **AI & Aesthetics** 的代码与思考档案。
-
-## 它在探索什么？
-
-- **AI 与视觉美学**：布局、色彩、字体、质感和动效如何共同影响一份 deck 的气质。
-- **Deck 风格系统**：不同视觉语言如何被封装成可复用的演示模板。
-- **人的偏好反馈**：通过投票结果比较哪些风格更吸引人、更易读、更有表达力。
+你可以在此对喜欢的风格投票。
 
 ## 功能
 
