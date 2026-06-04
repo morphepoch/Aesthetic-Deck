@@ -1,3 +1,7 @@
+<p align="right">
+  <a href="./README.md">English</a> | <a href="./README-CN.md">简体中文</a>
+</p>
+
 # Aesthetic Deck 🦋
 
 A curated PPT style voting and preview system for exploring **AI & Aesthetics** in presentation design.
